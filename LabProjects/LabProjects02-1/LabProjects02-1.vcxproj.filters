@@ -54,6 +54,9 @@
     <ClInclude Include="Scene.h">
       <Filter>클래스\header</Filter>
     </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>클래스\header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LabProjects02-1.cpp">
@@ -75,6 +78,9 @@
       <Filter>클래스\cpp</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
+      <Filter>클래스\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
       <Filter>클래스\cpp</Filter>
     </ClCompile>
   </ItemGroup>

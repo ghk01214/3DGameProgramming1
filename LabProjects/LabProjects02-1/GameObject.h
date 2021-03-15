@@ -37,24 +37,9 @@ public:
 		}
 	}
 	void SetColor(DWORD dwColor) { m_dwColor = dwColor; }
-	void SetPosition(FLOAT x, FLOAT y, FLOAT z)
-	{
-		m_fxPosition = x;
-		m_fyPosition = y;
-		m_fzPosition = z;
-	}
-	void SetRotation(FLOAT x, FLOAT y, FLOAT z)
-	{
-		m_fxRotation = x;
-		m_fyRotation = y;
-		m_fzRotation = z;
-	}
-	void SetRotationSpeed(FLOAT x, FLOAT y, FLOAT z)
-	{
-		m_fxRotationSpeed = x;
-		m_fyRotationSpeed = y;
-		m_fzRotationSpeed = z;
-	}
+	void SetPosition(FLOAT x, FLOAT y, FLOAT z);
+	void SetRotation(FLOAT x, FLOAT y, FLOAT z);
+	void SetRotationSpeed(FLOAT x, FLOAT y, FLOAT z);
 public:
 	// 게임 객체를 x, y, z축으로 이동한다
 	void Move(FLOAT x, FLOAT y, FLOAT z);

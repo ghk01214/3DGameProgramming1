@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Camera.h"
 
+// 월드 좌표계의 점을 카메라 좌표계로 변환하는 함수
 CPoint3D CCamera::CameraTransform(CPoint3D& f3World)
 {
 	// 카메라를 월드 좌표계의 원점으로 이동한다
@@ -43,9 +44,10 @@ CPoint3D CCamera::CameraTransform(CPoint3D& f3World)
 		f3Camera.y = f3Rotated.y;
 	}
 
-	return(f3Camera);
+	return f3Camera;
 }
 
+// 카메라 좌표계의 점을 투영 좌표계로 변환하는 함수
 CPoint3D CCamera::ProjectionTransform(CPoint3D& f3Camera)
 {
 	CPoint3D f3Project = f3Camera;
@@ -59,9 +61,10 @@ CPoint3D CCamera::ProjectionTransform(CPoint3D& f3Camera)
 		f3Project.z = f3Camera.z;
 	}
 
-	return(f3Project);
+	return f3Project;
 }
 
+// 투영 좌표계의 점을 화면 좌표계로 변환하는 함수
 CPoint3D CCamera::ScreenTransform(CPoint3D& f3Projection)
 {
 	CPoint3D f3Screen = f3Projection;
@@ -72,7 +75,7 @@ CPoint3D CCamera::ScreenTransform(CPoint3D& f3Projection)
 	f3Screen.x = (+f3Projection.x * fHalfWidth) + m_pViewport->m_nLeft + fHalfWidth;
 	f3Screen.y = (-f3Projection.y * fHalfHeight) + m_pViewport->m_nTop + fHalfHeight;
 
-	return(f3Screen);
+	return f3Screen;
 }
 
 void CCamera::SetViewport(INT xStart, INT yStart, INT nWidth, INT nHeight)

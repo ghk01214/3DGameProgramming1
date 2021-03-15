@@ -3,13 +3,15 @@
 
 #include "stdafx.h"
 #include "LabProjects02-1.h"
+#include "GameFramwork.h"
 
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
-HINSTANCE hInst;                                // 현재 인스턴스입니다.
-WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
-WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
+HINSTANCE        hInst;                                    // 현재 인스턴스입니다.
+WCHAR            szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
+WCHAR            szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
+CGameFramwork    gGameFramework;                           // 기본 게임 프레임워크입니다.
 
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -17,10 +19,7 @@ BOOL                InitInstance(HINSTANCE, INT);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPWSTR    lpCmdLine,
-                     _In_ INT       nCmdShow)
+int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ INT nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
@@ -28,12 +27,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // TODO: 여기에 코드를 입력합니다.
 
     // 전역 문자열을 초기화합니다.
-    LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_LABPROJECTS021, szWindowClass, MAX_LOADSTRING);
-    MyRegisterClass(hInstance);
+    ::LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+    ::LoadStringW(hInstance, IDC_LABPROJECTS021, szWindowClass, MAX_LOADSTRING);
+    ::MyRegisterClass(hInstance);
 
     // 애플리케이션 초기화를 수행합니다:
-    if (!InitInstance (hInstance, nCmdShow))
+    if (!::InitInstance (hInstance, nCmdShow))
     {
         return FALSE;
     }
@@ -43,14 +42,28 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     MSG msg;
 
     // 기본 메시지 루프입니다:
-    while (GetMessage(&msg, nullptr, 0, 0))
+    while (TRUE)
     {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+        if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
         {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
+            if (msg.message == WM_QUIT)
+            {
+                break;
+            }
+
+            if (!::TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+            {
+                ::TranslateMessage(&msg);
+                ::DispatchMessage(&msg);
+            }
+        }
+        else
+        {
+            gGameFramework.FrameAdvance();
         }
     }
+
+    gGameFramework.OnDestroy();
 
     return (INT) msg.wParam;
 }
@@ -76,11 +89,11 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_LABPROJECTS021));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_LABPROJECTS021);
+    wcex.lpszMenuName   = nullptr;
     wcex.lpszClassName  = szWindowClass;
     wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
-    return RegisterClassExW(&wcex);
+    return RegisterClassEx(&wcex);
 }
 
 //
@@ -97,16 +110,25 @@ BOOL InitInstance(HINSTANCE hInstance, INT nCmdShow)
 {
    hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+   // 주 윈도우의 클라이언트 영역의 크기를 원하는 크기로 설정
+   RECT rc = { 0, 0, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT };
+   DWORD dwStyle = WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER;
+
+   ::AdjustWindowRect(&rc, dwStyle, FALSE);
+
+   HWND hWnd = CreateWindow(szWindowClass, szTitle, dwStyle,
+       CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance, nullptr);
 
    if (!hWnd)
    {
       return FALSE;
    }
 
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
+   // 프로그램의 주 윈도우가 생성되면 CGameFramework 클래스의 OnCreate() 함수를 호출하여 프레임워크 객체를 초기화하도록 한다
+   gGameFramework.OnCreate(hInstance, hWnd);
+
+   ::ShowWindow(hWnd, nCmdShow);
+   ::UpdateWindow(hWnd);
 
    return TRUE;
 }
@@ -135,7 +157,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
             case IDM_EXIT:
-                DestroyWindow(hWnd);
+                ::DestroyWindow(hWnd);
                 break;
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
@@ -145,13 +167,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
+            HDC hdc = ::BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            EndPaint(hWnd, &ps);
+            ::EndPaint(hWnd, &ps);
         }
         break;
     case WM_DESTROY:
-        PostQuitMessage(0);
+        ::PostQuitMessage(0);
         break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
@@ -171,7 +193,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_COMMAND:
         if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
         {
-            EndDialog(hDlg, LOWORD(wParam));
+            ::EndDialog(hDlg, LOWORD(wParam));
             return (INT_PTR)TRUE;
         }
         break;

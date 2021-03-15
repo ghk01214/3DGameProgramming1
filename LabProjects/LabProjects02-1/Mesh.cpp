@@ -2,6 +2,16 @@
 #include "Mesh.h"
 #include "GraphicsPipeline.h"
 
+void Draw2DLine(HDC hDCFrameBuffer, CPoint3D& f3PreviousProject, CPoint3D& f3CurrentProject)
+{
+	// 투영 좌표계의 2점을 화면 좌표계로 변환하고 변환된 두 점(픽셀)을 선분으로 그린다
+	CPoint3D f3Previous = CGraphicsPipeline::ScreenTransform(f3PreviousProject);
+	CPoint3D f3Current = CGraphicsPipeline::ScreenTransform(f3CurrentProject);
+
+	::MoveToEx(hDCFrameBuffer, (LONG)f3Previous.x, (LONG)f3Previous.y, NULL);
+	::LineTo(hDCFrameBuffer, (LONG)f3Current.x, (LONG)f3Current.y);
+}
+
 CPolygon::CPolygon(INT nVertices)
 {
 	m_nVertices = nVertices;
@@ -57,14 +67,14 @@ void CMesh::SetPolygon(INT nIndex, CPolygon* pPolygon)
 
 void CMesh::Render(HDC hDCFramebuffer)
 {
-	CPoint3D f3InitialProject, f3PreviousProject, f3Intersect;
-	BOOL bPreviousInside = FALSE, bInitialInside = FALSE, bCurrentInside = FALSE, bIntersectInside = FALSE;
+	CPoint3D	f3InitialProject, f3PreviousProject, f3Intersect;
+	BOOL		bPreviousInside = FALSE, bInitialInside = FALSE, bCurrentInside = FALSE, bIntersectInside = FALSE;
 
 	// 메쉬를 구성하는 모든 다각형들을 렌더링한다
 	for (INT i = 0; i < m_nPolygons; ++i)
 	{
-		INT nVertices = m_ppPolygons[i]->m_nVertices;
-		CVertex* pVertices = m_ppPolygons[i]->m_pVertices;
+		INT			nVertices = m_ppPolygons[i]->m_nVertices;
+		CVertex*	pVertices = m_ppPolygons[i]->m_pVertices;
 
 		// 다각형의 첫 번째 정점을 원근 투영 변환한다
 		f3PreviousProject = f3InitialProject = CGraphicsPipeline::Project(pVertices[0].m_f3Position);
@@ -74,7 +84,7 @@ void CMesh::Render(HDC hDCFramebuffer)
 		// 다각형을 구성하는 모든 정점들을 원근 투영 변환하고 선분으로 렌더링한다
 		for (INT j = 1; j < nVertices; ++j)
 		{
-			CPoint3D f3CurrentProject = CGraphicsPipeline::Project(pVertices[j].m_f3Position);]
+			CPoint3D f3CurrentProject = CGraphicsPipeline::Project(pVertices[j].m_f3Position);
 			// 변환된 점이 투영 사각형에 포함되는 가를 계산한다
 			bCurrentInside = (f3CurrentProject.x >= -1.0f) && (f3CurrentProject.x <= 1.0f) && (f3CurrentProject.y >= -1.0f) && (f3CurrentProject.y <= 1.0f);
 
@@ -147,14 +157,4 @@ CCubeMesh::CCubeMesh(FLOAT fwidth, FLOAT fheight, FLOAT fDepth) : CMesh(6)
 
 CCubeMesh::~CCubeMesh()
 {
-}
-
-void Draw2DLine(HDC hDCFrameBuffer, CPoint3D& f3PreviousProject, CPoint3D& f3CurrentProject)
-{
-	// 투영 좌표계의 2점을 화면 좌표계로 변환하고 변환된 두 점(픽셀)을 선분으로 그린다
-	CPoint3D f3Previous = CGraphicsPipeline::ScreenTransform(f3PreviousProject);
-	CPoint3D f3Current = CGraphicsPipeline::ScreenTransform(f3CurrentProject);
-
-	::MoveToEx(hDCFrameBuffer, (LONG)f3Previous.x, (LONG)f3Previous.y, NULL);
-	::LineTo(hDCFrameBuffer, (LONG)f3Current.x, (LONG)f3Current.y);
 }

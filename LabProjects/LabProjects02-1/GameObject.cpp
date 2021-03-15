@@ -10,6 +10,27 @@ CGameObject::~CGameObject()
 	}
 }
 
+void CGameObject::SetPosition(FLOAT x, FLOAT y, FLOAT z)
+{
+	m_fxPosition = x;
+	m_fyPosition = y;
+	m_fzPosition = z;
+}
+
+void CGameObject::SetRotation(FLOAT x, FLOAT y, FLOAT z)
+{
+	m_fxRotation = x;
+	m_fyRotation = y;
+	m_fzRotation = z;
+}
+
+void CGameObject::SetRotationSpeed(FLOAT x, FLOAT y, FLOAT z)
+{
+	m_fxRotationSpeed = x;
+	m_fyRotationSpeed = y;
+	m_fzRotationSpeed = z;
+}
+
 void CGameObject::Move(FLOAT x, FLOAT y, FLOAT z)
 {
 	m_fxPosition += x;
@@ -66,7 +87,7 @@ CPoint3D CGameObject::WorldTransform(CPoint3D& f3Model)
 	f3World.y += m_fyPosition;
 	f3World.z += m_fzPosition;
 
-	return(f3World);
+	return f3World;
 }
 
 void CGameObject::Animate(FLOAT fElapsedTime)
