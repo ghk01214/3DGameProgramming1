@@ -37,7 +37,7 @@ void CGameFramwork::BuildFrameBuffer()
 {
 	::GetClientRect(m_hWnd, &m_rcClient);
 
-	HDC hDC = ::GetDC(m_hWnd);
+	HDC hDC{ ::GetDC(m_hWnd) };
 	m_hDCFrameBuffer = ::CreateCompatibleDC(hDC);
 	m_hBitmapFrameBuffer = ::CreateCompatibleBitmap(hDC, m_rcClient.right - m_rcClient.left, m_rcClient.bottom - m_rcClient.top);
 
@@ -50,10 +50,10 @@ void CGameFramwork::BuildFrameBuffer()
 // 씬을 화면(클라이언트 영역)으로 렌더링하기 위하여 먼저 씬의 게임 객체들을 비트맵 표면으로 렌더링
 void CGameFramwork::ClearFrameBuffer(DWORD dwColor)
 {
-	HPEN hPen = ::CreatePen(PS_SOLID, 0, dwColor);
-	HPEN hOldPen = (HPEN)::SelectObject(m_hDCFrameBuffer, hPen);
-	HBRUSH hBrush = ::CreateSolidBrush(dwColor);
-	HBRUSH hOldBrush = (HBRUSH)::SelectObject(m_hDCFrameBuffer, hBrush);
+	HPEN	hPen		{ ::CreatePen(PS_SOLID, 0, dwColor) };
+	HPEN	hOldPen		{ (HPEN)::SelectObject(m_hDCFrameBuffer, hPen) };
+	HBRUSH	hBrush		{ ::CreateSolidBrush(dwColor) };
+	HBRUSH	hOldBrush	{ (HBRUSH)::SelectObject(m_hDCFrameBuffer, hBrush) };
 
 	::Rectangle(m_hDCFrameBuffer, m_rcClient.left, m_rcClient.top, m_rcClient.right, m_rcClient.bottom);
 	::SelectObject(m_hDCFrameBuffer, hOldBrush);
@@ -65,7 +65,7 @@ void CGameFramwork::ClearFrameBuffer(DWORD dwColor)
 // 비트맵 표면으로 렌더링된 비트맵 클라이언트 영역으로 옮긴다.
 void CGameFramwork::PresentFrameBuffer()
 {
-	HDC hDC = ::GetDC(m_hWnd);
+	HDC hDC{ ::GetDC(m_hWnd) };
 
 	::BitBlt(hDC, m_rcClient.left, m_rcClient.top, m_rcClient.right - m_rcClient.left, m_rcClient.bottom - m_rcClient.top, m_hDCFrameBuffer, m_rcClient.left, m_rcClient.top, SRCCOPY);
 	::ReleaseDC(m_hWnd, hDC);
@@ -75,7 +75,7 @@ void CGameFramwork::PresentFrameBuffer()
 void CGameFramwork::BuildObjects()
 {
 	// 카메라를 생성하고 뷰포트와 시야각(FOV)를 설정
-	CCamera* pCamera = new CCamera();
+	CCamera* pCamera{ new CCamera() };
 	pCamera->SetViewport(0, 0, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
 	pCamera->SetFOVAngle(60.0f);
 
@@ -115,7 +115,7 @@ void CGameFramwork::ProcessInput()
 
 	if (::GetKeyboardState(pKeyBuffer))
 	{
-		FLOAT cxKeyDelta = 0.0f, cyKeyDelta = 0.0f, czKeyDelta = 0.0f;
+		FLOAT cxKeyDelta{ 0.0f }, cyKeyDelta{ 0.0f }, czKeyDelta{ 0.0f };
 
 		if (pKeyBuffer[VK_UP] & 0xF0)
 		{
@@ -173,7 +173,7 @@ void CGameFramwork::FrameAdvance()
 	ClearFrameBuffer(RGB(90, 103, 224));
 
 	// 씬을 렌더링
-	CCamera* pCamera = m_pPlayer->GetCamera();
+	CCamera* pCamera{ m_pPlayer->GetCamera() };
 
 	if (m_pScene)
 	{

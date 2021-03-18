@@ -47,12 +47,12 @@ void CGameObject::Rotate(FLOAT x, FLOAT y, FLOAT z)
 
 CPoint3D CGameObject::WorldTransform(CPoint3D& f3Model)
 {
-	FLOAT fPitch = DegreeToRadian(m_fxRotation);
-	FLOAT fYaw = DegreeToRadian(m_fyRotation);
-	FLOAT fRoll = DegreeToRadian(m_fzRotation);
+	FLOAT fPitch	{ DegreeToRadian(m_fxRotation) };
+	FLOAT fYaw		{ DegreeToRadian(m_fyRotation) };
+	FLOAT fRoll		{ DegreeToRadian(m_fzRotation) };
 
-	CPoint3D f3World = f3Model;
-	CPoint3D f3Rotated = f3Model;
+	CPoint3D f3World	 { f3Model };
+	CPoint3D f3Rotated	 { f3Model };
 
 	// 회전 변환
 	if (fPitch != 0.0f)
@@ -97,8 +97,8 @@ void CGameObject::Animate(FLOAT fElapsedTime)
 
 void CGameObject::Render(HDC hDCFrameBuffer)
 {
-	HPEN hPen = ::CreatePen(PS_SOLID, 0, m_dwColor);
-	HPEN hOldPen = (HPEN)::SelectObject(hDCFrameBuffer, hPen);
+	HPEN hPen		{ ::CreatePen(PS_SOLID, 0, m_dwColor) };
+	HPEN hOldPen	{ (HPEN)::SelectObject(hDCFrameBuffer, hPen) };
 
 	if (m_pMesh)
 	{

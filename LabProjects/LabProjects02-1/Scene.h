@@ -6,8 +6,8 @@ class CScene
 {
 private:
 	//게임 객체들의 개수와 게임 객체들의 리스트(배열)이다
-	INT				m_nObjects = 0;
-	CGameObject**	m_ppObjects = nullptr;
+	INT				m_nObjects	{ 0 };
+	CGameObject**	m_ppObjects	{ nullptr };
 public:
 	CScene() {}
 	virtual ~CScene() {}

@@ -5,24 +5,24 @@ class CGameObject
 {
 private:
 	// 게임 객체의 위치(월드 좌표계)이다
-	FLOAT m_fxPosition = 0.0f;
-	FLOAT m_fyPosition = 0.0f;
-	FLOAT m_fzPosition = 0.0f;
+	FLOAT	m_fxPosition{ 0.0f };
+	FLOAT	m_fyPosition{ 0.0f };
+	FLOAT	m_fzPosition{ 0.0f };
 private:
 	// 게임 객체의 x축, y축, z축 회전 양(축을 기준으로 반시계 방향)이다
-	FLOAT m_fxRotation = 0.0f;
-	FLOAT m_fyRotation = 0.0f;
-	FLOAT m_fzRotation = 0.0f;
+	FLOAT	m_fxRotation{ 0.0f };
+	FLOAT	m_fyRotation{ 0.0f };
+	FLOAT	m_fzRotation{ 0.0f };
 private:
 	// 게임 객체의 x축, y축, z축 회전 양이다
-	FLOAT m_fxRotationSpeed = 0.0f;
-	FLOAT m_fyRotationSpeed = 0.0f;
-	FLOAT m_fzRotationSpeed = 0.0f;
+	FLOAT	m_fxRotationSpeed{ 0.0f };
+	FLOAT	m_fyRotationSpeed{ 0.0f };
+	FLOAT	m_fzRotationSpeed{ 0.0f };
 private:
 	// 게임 객체의 모양(메쉬, 모델)이다
-	CMesh* m_pMesh = nullptr;
+	CMesh*	m_pMesh{ nullptr };
 	// 게임 객체의 색상(선분의 색상)이다
-	DWORD m_dwColor = RGB(255, 0, 0);
+	DWORD	m_dwColor{ RGB(255, 0, 0) };
 public:
 	CGameObject() {};
 	~CGameObject();

@@ -6,8 +6,8 @@
 
 #include "targetver.h"
 #define WIN32_LEAN_AND_MEAN             // 거의 사용되지 않는 내용을 Windows 헤더에서 제외합니다.
-#define FRAMEBUFFER_WIDTH 640
-#define FRAMEBUFFER_HEIGHT 480
+#define FRAMEBUFFER_WIDTH	640
+#define FRAMEBUFFER_HEIGHT	480
 #define DegreeToRadian(x) FLOAT((x)*3.141593654f/180.0f)
 // Windows 헤더 파일
 #include <windows.h>

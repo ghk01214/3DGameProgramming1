@@ -5,17 +5,17 @@
 CPoint3D CCamera::CameraTransform(CPoint3D& f3World)
 {
 	// 카메라를 월드 좌표계의 원점으로 이동한다
-	CPoint3D f3Camera = f3World;
+	CPoint3D f3Camera{ f3World };
 	f3Camera.x -= m_fxPosition;
 	f3Camera.y -= m_fyPosition;
 	f3Camera.z -= m_fzPosition;
 
-	FLOAT fPitch = DegreeToRadian(-m_fxRotation);
-	FLOAT fYaw = DegreeToRadian(-m_fyRotation);
-	FLOAT fRoll = DegreeToRadian(-m_fzRotation);
+	FLOAT fPitch{ DegreeToRadian(-m_fxRotation) };
+	FLOAT fYaw	{ DegreeToRadian(-m_fyRotation) };
+	FLOAT fRoll	{ DegreeToRadian(-m_fzRotation) };
 
 	// 카레마릐 월드 좌표계의 축과 일치하도록 회전한다
-	CPoint3D f3Rotated = f3Camera;
+	CPoint3D f3Rotated{ f3Camera };
 
 	if (fPitch != 0.0f)
 	{
@@ -50,7 +50,7 @@ CPoint3D CCamera::CameraTransform(CPoint3D& f3World)
 // 카메라 좌표계의 점을 투영 좌표계로 변환하는 함수
 CPoint3D CCamera::ProjectionTransform(CPoint3D& f3Camera)
 {
-	CPoint3D f3Project = f3Camera;
+	CPoint3D f3Project{ f3Camera };
 
 	if (f3Camera.z != 0.0f)
 	{
@@ -67,7 +67,7 @@ CPoint3D CCamera::ProjectionTransform(CPoint3D& f3Camera)
 // 투영 좌표계의 점을 화면 좌표계로 변환하는 함수
 CPoint3D CCamera::ScreenTransform(CPoint3D& f3Projection)
 {
-	CPoint3D f3Screen = f3Projection;
+	CPoint3D f3Screen{ f3Projection };
 
 	FLOAT fHalfWidth = m_pViewport->m_nWidth * 0.5f;
 	FLOAT fHalfHeight = m_pViewport->m_nHeight * 0.5f;

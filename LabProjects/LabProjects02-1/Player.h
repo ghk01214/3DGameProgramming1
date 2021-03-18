@@ -7,7 +7,7 @@ class CPlayer : public CGameObject
 {
 private:
 	// 플레이어 객체에 포함된 카메라이다
-	CCamera* m_pCamera = nullptr;
+	CCamera* m_pCamera{ nullptr };
 public:
 	CPlayer() {}
 	virtual ~CPlayer()

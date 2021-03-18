@@ -9,13 +9,7 @@ public:
 	INT m_nWidth;
 	INT m_nHeight;
 public:
-	CViewport(INT nLeft, INT nTop, INT nWidth, INT nHeight)
-	{
-		m_nLeft = nLeft;
-		m_nTop = nTop;
-		m_nWidth = nWidth;
-		m_nHeight = nHeight;
-	}
+	CViewport(INT nLeft, INT nTop, INT nWidth, INT nHeight) : m_nLeft(nLeft), m_nTop(nTop), m_nWidth(nWidth), m_nHeight(nHeight) {}
 	virtual ~CViewport() {}
 };
 
@@ -23,23 +17,23 @@ class CCamera
 {
 private:
 	// 카메라의 위치(월드 좌표계)
-	FLOAT m_fxPosition = 0.0f;
-	FLOAT m_fyPosition = 0.0f;
-	FLOAT m_fzPosition = 0.0f;
+	FLOAT m_fxPosition{ 0.0f };
+	FLOAT m_fyPosition{ 0.0f };
+	FLOAT m_fzPosition{ 0.0f };
 private:
 	// 카메라의 회전(카메라 좌표계)
-	FLOAT m_fxRotation = 0.0f;
-	FLOAT m_fyRotation = 0.0f;
-	FLOAT m_fzRotation = 0.0f;
+	FLOAT m_fxRotation{0.0f};
+	FLOAT m_fyRotation{0.0f};
+	FLOAT m_fzRotation{0.0f};
 private:
 	// 카메라의 시야각, 투영 사각형까지의 거리
-	FLOAT m_fFOVAngle = 90.0f;
-	FLOAT m_fProjectRectDistance = 1.0f;
+	FLOAT m_fFOVAngle{ 90.0f };
+	FLOAT m_fProjectRectDistance{ 1.0f };
 private:
 	// 뷰포트
-	CViewport*	m_pViewport = nullptr;
+	CViewport*	m_pViewport{ nullptr };
 	//뷰포트의 가로 길이와 세로 길이의 비율(종횡비: Aspect Ratio)
-	FLOAT		m_fAspectRatio = FLOAT(FRAMEBUFFER_WIDTH) / FLOAT(FRAMEBUFFER_HEIGHT);
+	FLOAT		m_fAspectRatio{ FLOAT(FRAMEBUFFER_WIDTH) / FLOAT(FRAMEBUFFER_HEIGHT) };
 public:
 	CCamera() {}
 	virtual ~CCamera()
@@ -75,4 +69,3 @@ public:
 	void Move(FLOAT x, FLOAT y, FLOAT z);
 	void Rotate(FLOAT fPitch, FLOAT fYaw, FLOAT fRoll);
 };
-

@@ -6,21 +6,21 @@ class CGameFramwork
 {
 private:
 	// 윈도우 응용프로그램의 인스턴스 핸들과 주 윈도우 핸들
-	HINSTANCE	m_hInstance = nullptr;
-	HWND		m_hWnd = nullptr;
+	HINSTANCE	m_hInstance{ nullptr };
+	HWND		m_hWnd{ nullptr };
 private:
 	// 주 윈도우의 클라이언트 사각형
 	RECT		m_rcClient;
 private:
 	// 렌더링의 대상이 되는 화면에 해당하는 비트맵과 비트맵 디바이스 컨텍스트(Device Context)
-	HDC			m_hDCFrameBuffer = nullptr;
-	HBITMAP		m_hBitmapFrameBuffer = nullptr;
-	HBITMAP		m_hBitmapSelect = nullptr;
+	HDC			m_hDCFrameBuffer{ nullptr };
+	HBITMAP		m_hBitmapFrameBuffer{ nullptr };
+	HBITMAP		m_hBitmapSelect{ nullptr };
 private:
 	// 플레이어 객체
-	CPlayer*	m_pPlayer = nullptr;
+	CPlayer*	m_pPlayer{ nullptr };
 	//게임 객체들을 포함하는 씬(게임 세계) 클래스
-	CScene*		m_pScene = nullptr;
+	CScene*		m_pScene{ nullptr };
 public:
 	CGameFramwork() {}
 	~CGameFramwork() {}

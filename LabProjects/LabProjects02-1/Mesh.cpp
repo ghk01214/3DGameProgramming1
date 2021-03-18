@@ -12,10 +12,8 @@ void Draw2DLine(HDC hDCFrameBuffer, CPoint3D& f3PreviousProject, CPoint3D& f3Cur
 	::LineTo(hDCFrameBuffer, (LONG)f3Current.x, (LONG)f3Current.y);
 }
 
-CPolygon::CPolygon(INT nVertices)
+CPolygon::CPolygon(INT nVertices) : m_nVertices{ nVertices }, m_pVertices{ new CVertex[nVertices] }
 {
-	m_nVertices = nVertices;
-	m_pVertices = new CVertex[nVertices];
 }
 
 CPolygon::~CPolygon()
@@ -34,10 +32,8 @@ void CPolygon::SetVertex(INT nIndex, CVertex vertex)
 	}
 }
 
-CMesh::CMesh(INT nPolygons)
+CMesh::CMesh(INT nPolygons) : m_nPolygons{ nPolygons }, m_ppPolygons{ new CPolygon * [nPolygons] }
 {
-	m_nPolygons = nPolygons;
-	m_ppPolygons = new CPolygon * [nPolygons];
 }
 
 CMesh::~CMesh()

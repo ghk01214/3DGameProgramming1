@@ -27,34 +27,34 @@ INT APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     // TODO: 여기에 코드를 입력합니다.
 
     // 전역 문자열을 초기화합니다.
-    ::LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    ::LoadStringW(hInstance, IDC_LABPROJECTS021, szWindowClass, MAX_LOADSTRING);
-    ::MyRegisterClass(hInstance);
+    LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+    LoadStringW(hInstance, IDC_LABPROJECTS021, szWindowClass, MAX_LOADSTRING);
+    MyRegisterClass(hInstance);
 
     // 애플리케이션 초기화를 수행합니다:
-    if (!::InitInstance (hInstance, nCmdShow))
+    if (!InitInstance (hInstance, nCmdShow))
     {
         return FALSE;
     }
 
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_LABPROJECTS021));
+    HACCEL hAccelTable{ LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_LABPROJECTS021)) };
 
     MSG msg;
 
     // 기본 메시지 루프입니다:
     while (TRUE)
     {
-        if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
         {
             if (msg.message == WM_QUIT)
             {
                 break;
             }
 
-            if (!::TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+            if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
             {
-                ::TranslateMessage(&msg);
-                ::DispatchMessage(&msg);
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
             }
         }
         else
@@ -112,12 +112,12 @@ BOOL InitInstance(HINSTANCE hInstance, INT nCmdShow)
 
    // 주 윈도우의 클라이언트 영역의 크기를 원하는 크기로 설정
    RECT rc = { 0, 0, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT };
-   DWORD dwStyle = WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER;
+   DWORD dwStyle{ WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER };
 
-   ::AdjustWindowRect(&rc, dwStyle, FALSE);
+   AdjustWindowRect(&rc, dwStyle, FALSE);
 
-   HWND hWnd = CreateWindow(szWindowClass, szTitle, dwStyle,
-       CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance, nullptr);
+   HWND hWnd{ CreateWindow(szWindowClass, szTitle, dwStyle,
+       CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance, nullptr) };
 
    if (!hWnd)
    {
@@ -127,8 +127,8 @@ BOOL InitInstance(HINSTANCE hInstance, INT nCmdShow)
    // 프로그램의 주 윈도우가 생성되면 CGameFramework 클래스의 OnCreate() 함수를 호출하여 프레임워크 객체를 초기화하도록 한다
    gGameFramework.OnCreate(hInstance, hWnd);
 
-   ::ShowWindow(hWnd, nCmdShow);
-   ::UpdateWindow(hWnd);
+   ShowWindow(hWnd, nCmdShow);
+   UpdateWindow(hWnd);
 
    return TRUE;
 }
@@ -149,7 +149,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_COMMAND:
         {
-            INT wmId = LOWORD(wParam);
+            INT wmId{ LOWORD(wParam) };
             // 메뉴 선택을 구문 분석합니다:
             switch (wmId)
             {
@@ -157,7 +157,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
             case IDM_EXIT:
-                ::DestroyWindow(hWnd);
+                DestroyWindow(hWnd);
                 break;
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
@@ -167,13 +167,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
-            HDC hdc = ::BeginPaint(hWnd, &ps);
+            HDC         hdc{ BeginPaint(hWnd, &ps) };
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            ::EndPaint(hWnd, &ps);
+            EndPaint(hWnd, &ps);
         }
         break;
     case WM_DESTROY:
-        ::PostQuitMessage(0);
+        PostQuitMessage(0);
         break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
@@ -193,7 +193,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_COMMAND:
         if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
         {
-            ::EndDialog(hDlg, LOWORD(wParam));
+            EndDialog(hDlg, LOWORD(wParam));
             return (INT_PTR)TRUE;
         }
         break;
