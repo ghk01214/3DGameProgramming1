@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.31105.61
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LabProjects00", "LabProjects00\LabProjects00.vcxproj", "{0431584C-932C-411E-8EB3-38A89D659BE4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LabProjects01", "LabProjects01\LabProjects01.vcxproj", "{958CDA04-3962-40A5-8B5A-77E15AFBB658}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LabProjects01-1", "LabProjects01\LabProjects01.vcxproj", "{958CDA04-3962-40A5-8B5A-77E15AFBB658}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LabProjects02-1", "LabProjects02-1\LabProjects02-1.vcxproj", "{FCB1033D-5A7B-4AEC-B386-B7A5F2C3CCDF}"
 EndProject

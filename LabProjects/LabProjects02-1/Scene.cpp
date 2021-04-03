@@ -5,7 +5,7 @@
 void CScene::BuildObjects()
 {
 	// 직육면체 메쉬를 생성한다
-	CCubeMesh* pCubeMesh = new CCubeMesh(8.0f, 8.0f, 8.0f);
+	CCubeMesh* pCubeMesh{ new CCubeMesh(8.0f, 8.0f, 8.0f) };
 
 	// 게임 객체 2개를 생성한다
 	m_nObjects = 2;
@@ -28,7 +28,7 @@ void CScene::BuildObjects()
 
 void CScene::ReleaseObjects()
 {
-	for (INT i = 0; i < m_nObjects; ++i)
+	for (INT i{ 0 }; i < m_nObjects; ++i)
 	{
 		if (m_ppObjects[i])
 		{
@@ -44,7 +44,7 @@ void CScene::ReleaseObjects()
 
 void CScene::Animate(FLOAT fElapsedTime)
 {
-	for (INT i = 0; i < m_nObjects; ++i)
+	for (INT i{ 0 }; i < m_nObjects; ++i)
 	{
 		m_ppObjects[i]->Animate(fElapsedTime);
 	}

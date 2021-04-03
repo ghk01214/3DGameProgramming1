@@ -24,12 +24,12 @@
     <ClInclude Include="Resource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="LabProjects01.h">
+    <ClInclude Include="LabProjects01-1.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LabProjects01.cpp">
+    <ClCompile Include="LabProjects01-1.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

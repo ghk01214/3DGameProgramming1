@@ -11,8 +11,8 @@ CPoint3D CCamera::CameraTransform(CPoint3D& f3World)
 	f3Camera.z -= m_fzPosition;
 
 	FLOAT fPitch{ DegreeToRadian(-m_fxRotation) };
-	FLOAT fYaw	{ DegreeToRadian(-m_fyRotation) };
-	FLOAT fRoll	{ DegreeToRadian(-m_fzRotation) };
+	FLOAT fYaw{ DegreeToRadian(-m_fyRotation) };
+	FLOAT fRoll{ DegreeToRadian(-m_fzRotation) };
 
 	// 카레마릐 월드 좌표계의 축과 일치하도록 회전한다
 	CPoint3D f3Rotated{ f3Camera };
@@ -69,8 +69,8 @@ CPoint3D CCamera::ScreenTransform(CPoint3D& f3Projection)
 {
 	CPoint3D f3Screen{ f3Projection };
 
-	FLOAT fHalfWidth = m_pViewport->m_nWidth * 0.5f;
-	FLOAT fHalfHeight = m_pViewport->m_nHeight * 0.5f;
+	FLOAT fHalfWidth{ m_pViewport->m_nWidth * 0.5f };
+	FLOAT fHalfHeight{ m_pViewport->m_nHeight * 0.5f };
 	
 	f3Screen.x = (+f3Projection.x * fHalfWidth) + m_pViewport->m_nLeft + fHalfWidth;
 	f3Screen.y = (-f3Projection.y * fHalfHeight) + m_pViewport->m_nTop + fHalfHeight;

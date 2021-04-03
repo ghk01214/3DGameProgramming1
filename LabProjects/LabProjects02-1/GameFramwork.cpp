@@ -7,10 +7,8 @@ void CGameFramwork::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	m_hInstance = hInstance;
 	m_hWnd = hMainWnd;
 
-	//렌더링 화면을 생성
-	BuildFrameBuffer();
-	// 플레이어와 게임 세계(씬)을 생성
-	BuildObjects();
+	BuildFrameBuffer();				//렌더링 화면을 생성
+	BuildObjects();					// 플레이어와 게임 세계(씬)을 생성
 }
 
 // 응용 프로그램이 종료될 때 호출
@@ -50,10 +48,10 @@ void CGameFramwork::BuildFrameBuffer()
 // 씬을 화면(클라이언트 영역)으로 렌더링하기 위하여 먼저 씬의 게임 객체들을 비트맵 표면으로 렌더링
 void CGameFramwork::ClearFrameBuffer(DWORD dwColor)
 {
-	HPEN	hPen		{ ::CreatePen(PS_SOLID, 0, dwColor) };
-	HPEN	hOldPen		{ (HPEN)::SelectObject(m_hDCFrameBuffer, hPen) };
-	HBRUSH	hBrush		{ ::CreateSolidBrush(dwColor) };
-	HBRUSH	hOldBrush	{ (HBRUSH)::SelectObject(m_hDCFrameBuffer, hBrush) };
+	HPEN	hPen{ ::CreatePen(PS_SOLID, 0, dwColor) };
+	HPEN	hOldPen{ (HPEN)::SelectObject(m_hDCFrameBuffer, hPen) };
+	HBRUSH	hBrush{ ::CreateSolidBrush(dwColor) };
+	HBRUSH	hOldBrush{ (HBRUSH)::SelectObject(m_hDCFrameBuffer, hBrush) };
 
 	::Rectangle(m_hDCFrameBuffer, m_rcClient.left, m_rcClient.top, m_rcClient.right, m_rcClient.bottom);
 	::SelectObject(m_hDCFrameBuffer, hOldBrush);
@@ -164,10 +162,8 @@ void CGameFramwork::AnimateObjects()
 // 사용자 입력을 받아 플레이어 또는 게임 세계의 게임 객체들을 움직이고 그 결과에 따라 게임 세계를 화면으로 렌더링
 void CGameFramwork::FrameAdvance()
 {
-	// 사용자의 입력을 처리
-	ProcessInput();
-	// 게임 세계를 애니메이션(움직임)
-	AnimateObjects();
+	ProcessInput();					// 사용자의 입력을 처리
+	AnimateObjects();				// 게임 세계를 애니메이션(움직임)
 
 	// 렌더링을 할 대상 화면(비트맵)을 지움
 	ClearFrameBuffer(RGB(90, 103, 224));

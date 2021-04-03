@@ -8,10 +8,10 @@
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
-HINSTANCE        hInst;                                    // 현재 인스턴스입니다.
-WCHAR            szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
-WCHAR            szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
-CGameFramwork    gGameFramework;                           // 기본 게임 프레임워크입니다.
+HINSTANCE           hInst;                                    // 현재 인스턴스입니다.
+WCHAR               szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
+WCHAR               szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
+CGameFramwork       gGameFramework;                           // 기본 게임 프레임워크입니다.
 
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -116,8 +116,7 @@ BOOL InitInstance(HINSTANCE hInstance, INT nCmdShow)
 
    AdjustWindowRect(&rc, dwStyle, FALSE);
 
-   HWND hWnd{ CreateWindow(szWindowClass, szTitle, dwStyle,
-       CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance, nullptr) };
+   HWND hWnd{ CreateWindow(szWindowClass, szTitle, dwStyle, CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance, nullptr) };
 
    if (!hWnd)
    {
@@ -148,30 +147,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message)
     {
     case WM_COMMAND:
+    {
+        INT wmId{ LOWORD(wParam) };
+        // 메뉴 선택을 구문 분석합니다:
+        switch (wmId)
         {
-            INT wmId{ LOWORD(wParam) };
-            // 메뉴 선택을 구문 분석합니다:
-            switch (wmId)
-            {
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
-            }
+        case IDM_ABOUT:
+            DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+            break;
+        case IDM_EXIT:
+            DestroyWindow(hWnd);
+            break;
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
         }
+
         break;
+    }
     case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            HDC         hdc{ BeginPaint(hWnd, &ps) };
-            // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            EndPaint(hWnd, &ps);
-        }
+    {
+        PAINTSTRUCT ps;
+        HDC         hdc{ BeginPaint(hWnd, &ps) };
+        // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+        EndPaint(hWnd, &ps);
         break;
+    }
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
@@ -189,14 +189,17 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_INITDIALOG:
         return (INT_PTR)TRUE;
-
     case WM_COMMAND:
+    {
         if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
         {
             EndDialog(hDlg, LOWORD(wParam));
             return (INT_PTR)TRUE;
         }
+
         break;
     }
+    }
+
     return (INT_PTR)FALSE;
 }
