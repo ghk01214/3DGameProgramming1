@@ -10,12 +10,12 @@ inline FLOAT RandF(FLOAT fMin, FLOAT fMax)
 
 XMVECTOR RandomUnitVectorOnSphere()
 {
-	XMVECTOR xmvOne{ XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f) };
-	XMVECTOR xmvZero{ XMVectorZero() };
+	XMVECTOR xmvOne = XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
+	XMVECTOR xmvZero = XMVectorZero();
 
 	while (TRUE)
 	{
-		XMVECTOR v{ XMVectorSet(RandF(-1.0f, 1.0f), RandF(-1.0f, 1.0f), RandF(-1.0f, 1.0f), 0.0f) };
+		XMVECTOR v = XMVectorSet(RandF(-1.0f, 1.0f), RandF(-1.0f, 1.0f), RandF(-1.0f, 1.0f), 0.0f);
 
 		if (!XMVector3Greater(XMVector3LengthSq(v), xmvOne))
 			return XMVector3Normalize(v);
@@ -26,14 +26,14 @@ XMVECTOR RandomUnitVectorOnSphere()
 //
 CGameObject::CGameObject() 
 { 
-	m_pMesh = nullptr; 
-	m_xmf4x4World = Matrix4x4::Identity();
+	m_pMesh					 = nullptr; 
+	m_xmf4x4World			 = Matrix4x4::Identity();
 
-	m_dwColor = RGB(0, 0, 0);
+	m_dwColor				 = RGB(0, 0, 0);
 
-	m_xmf3MovingDirection = XMFLOAT3(0.0f, 0.0f, 1.0f);
-	m_fMovingSpeed = 0.0f;
-	m_fMovingRange = 0.0f;
+	m_xmf3MovingDirection	 = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	m_fMovingSpeed			 = 0.0f;
+	m_fMovingRange			 = 0.0f;
 
 	m_xmf3RotationAxis = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	m_fRotationSpeed = 0.05f;
@@ -98,8 +98,8 @@ XMFLOAT3 CGameObject::GetRight()
 
 void CGameObject::MoveStrafe(FLOAT fDistance)
 {
-	XMFLOAT3 xmf3Position{ GetPosition() };
-	XMFLOAT3 xmf3Right{ GetRight() };
+	XMFLOAT3 xmf3Position = GetPosition();
+	XMFLOAT3 xmf3Right = GetRight();
 	
 	xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(xmf3Right, fDistance));
 	
@@ -108,8 +108,8 @@ void CGameObject::MoveStrafe(FLOAT fDistance)
 
 void CGameObject::MoveUp(FLOAT fDistance)
 {
-	XMFLOAT3 xmf3Position{ GetPosition() };
-	XMFLOAT3 xmf3Up{ GetUp() };
+	XMFLOAT3 xmf3Position = GetPosition();
+	XMFLOAT3 xmf3Up = GetUp();
 
 	xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(xmf3Up, fDistance));
 
@@ -118,8 +118,8 @@ void CGameObject::MoveUp(FLOAT fDistance)
 
 void CGameObject::MoveForward(FLOAT fDistance)
 {
-	XMFLOAT3 xmf3Position{ GetPosition() };
-	XMFLOAT3 xmf3LookAt{ GetLook() };
+	XMFLOAT3 xmf3Position = GetPosition();
+	XMFLOAT3 xmf3LookAt = GetLook();
 	
 	xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(xmf3LookAt, fDistance));
 	
@@ -128,14 +128,14 @@ void CGameObject::MoveForward(FLOAT fDistance)
 
 void CGameObject::Rotate(FLOAT fPitch, FLOAT fYaw, FLOAT fRoll)
 {
-	XMFLOAT4X4 mtxRotate{ Matrix4x4::RotationYawPitchRoll(fPitch, fYaw, fRoll) };
+	XMFLOAT4X4 mtxRotate = Matrix4x4::RotationYawPitchRoll(fPitch, fYaw, fRoll);
 	
 	m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
 }
 
 void CGameObject::Rotate(XMFLOAT3& xmf3RotationAxis, FLOAT fAngle)
 {
-	XMFLOAT4X4 mtxRotate{ Matrix4x4::RotationAxis(xmf3RotationAxis, fAngle) };
+	XMFLOAT4X4 mtxRotate = Matrix4x4::RotationAxis(xmf3RotationAxis, fAngle);
 
 	m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
 }
@@ -147,7 +147,7 @@ void CGameObject::Move(XMFLOAT3& vDirection, FLOAT fSpeed)
 
 void CGameObject::LookTo(XMFLOAT3& xmf3LookTo, XMFLOAT3& xmf3Up)
 {
-	XMFLOAT4X4 xmf4x4View{ Matrix4x4::LookAtLH(GetPosition(), xmf3LookTo, xmf3Up) };
+	XMFLOAT4X4 xmf4x4View = Matrix4x4::LookAtLH(GetPosition(), xmf3LookTo, xmf3Up);
 
 	m_xmf4x4World._11 = xmf4x4View._11; m_xmf4x4World._12 = xmf4x4View._21; m_xmf4x4World._13 = xmf4x4View._31;
 	m_xmf4x4World._21 = xmf4x4View._12; m_xmf4x4World._22 = xmf4x4View._22; m_xmf4x4World._23 = xmf4x4View._32;
@@ -156,7 +156,7 @@ void CGameObject::LookTo(XMFLOAT3& xmf3LookTo, XMFLOAT3& xmf3Up)
 
 void CGameObject::LookAt(XMFLOAT3& xmf3LookAt, XMFLOAT3& xmf3Up)
 {
-	XMFLOAT4X4 xmf4x4View{ Matrix4x4::LookAtLH(GetPosition(), xmf3LookAt, xmf3Up) };
+	XMFLOAT4X4 xmf4x4View = Matrix4x4::LookAtLH(GetPosition(), xmf3LookAt, xmf3Up);
 
 	m_xmf4x4World._11 = xmf4x4View._11; m_xmf4x4World._12 = xmf4x4View._21; m_xmf4x4World._13 = xmf4x4View._31;
 	m_xmf4x4World._21 = xmf4x4View._12; m_xmf4x4World._22 = xmf4x4View._22; m_xmf4x4World._23 = xmf4x4View._32;
@@ -189,8 +189,8 @@ void CGameObject::Render(HDC hDCFrameBuffer, CCamera *pCamera)
 	{
 		if (pCamera->IsInFrustum(m_xmOOBB))
 		{
-			HPEN hPen{ ::CreatePen(PS_SOLID, 0, m_dwColor) };
-			HPEN hOldPen{ (HPEN)::SelectObject(hDCFrameBuffer, hPen) };
+			HPEN hPen = ::CreatePen(PS_SOLID, 0, m_dwColor);
+			HPEN hOldPen = (HPEN)::SelectObject(hDCFrameBuffer, hPen);
 
 			m_pMesh->Render(hDCFrameBuffer, m_xmf4x4World, pCamera);
 			::SelectObject(hDCFrameBuffer, hOldPen);
@@ -201,7 +201,7 @@ void CGameObject::Render(HDC hDCFrameBuffer, CCamera *pCamera)
 
 void CGameObject::GenerateRayForPicking(XMVECTOR& xmvPickPosition, XMMATRIX& xmmtxView, XMVECTOR& xmvPickRayOrigin, XMVECTOR& xmvPickRayDirection)
 {
-	XMMATRIX xmmtxToModel{ XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_xmf4x4World) * xmmtxView) };
+	XMMATRIX xmmtxToModel = XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_xmf4x4World) * xmmtxView);
 	XMFLOAT3 xmf3CameraOrigin(0.0f, 0.0f, 0.0f);
 
 	xmvPickRayOrigin = XMVector3TransformCoord(XMLoadFloat3(&xmf3CameraOrigin), xmmtxToModel);
@@ -211,7 +211,7 @@ void CGameObject::GenerateRayForPicking(XMVECTOR& xmvPickPosition, XMMATRIX& xmm
 
 INT CGameObject::PickObjectByRayIntersection(XMVECTOR& xmvPickPosition, XMMATRIX& xmmtxView, FLOAT *pfHitDistance)
 {
-	INT nIntersected{ 0 };
+	INT nIntersected = 0;
 
 	if (m_pMesh)
 	{
@@ -237,7 +237,7 @@ CWallsObject::~CWallsObject()
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 XMFLOAT3	CExplosiveObject::m_pxmf3SphereVectors[EXPLOSION_DEBRISES];
-CMesh*		CExplosiveObject::m_pExplosionMesh{ nullptr };
+CMesh*		CExplosiveObject::m_pExplosionMesh = nullptr;
 
 CExplosiveObject::CExplosiveObject()
 {
@@ -249,7 +249,7 @@ CExplosiveObject::~CExplosiveObject()
 
 void CExplosiveObject::PrepareExplosion()
 {
-	for (INT i{ 0 }; i < EXPLOSION_DEBRISES; ++i)
+	for (INT i = 0; i < EXPLOSION_DEBRISES; ++i)
 	{
 		XMStoreFloat3(&m_pxmf3SphereVectors[i], ::RandomUnitVectorOnSphere());
 	}
@@ -265,21 +265,21 @@ void CExplosiveObject::Animate(FLOAT fElapsedTime)
 
 		if (m_fElapsedTimes <= m_fDuration)
 		{
-			XMFLOAT3 xmf3Position{ GetPosition() };
+			XMFLOAT3 xmf3Position = GetPosition();
 
-			for (INT i{ 0 }; i < EXPLOSION_DEBRISES; ++i)
+			for (INT i = 0; i < EXPLOSION_DEBRISES; ++i)
 			{
-				m_pxmf4x4Transforms[i] = Matrix4x4::Identity();
-				m_pxmf4x4Transforms[i]._41 = xmf3Position.x + m_pxmf3SphereVectors[i].x * m_fExplosionSpeed * m_fElapsedTimes;
-				m_pxmf4x4Transforms[i]._42 = xmf3Position.y + m_pxmf3SphereVectors[i].y * m_fExplosionSpeed * m_fElapsedTimes;
-				m_pxmf4x4Transforms[i]._43 = xmf3Position.z + m_pxmf3SphereVectors[i].z * m_fExplosionSpeed * m_fElapsedTimes;
-				m_pxmf4x4Transforms[i] = Matrix4x4::Multiply(Matrix4x4::RotationAxis(m_pxmf3SphereVectors[i], m_fExplosionRotation * m_fElapsedTimes), m_pxmf4x4Transforms[i]);
+				m_pxmf4x4Transforms[i]			 = Matrix4x4::Identity();
+				m_pxmf4x4Transforms[i]._41		 = xmf3Position.x + m_pxmf3SphereVectors[i].x * m_fExplosionSpeed * m_fElapsedTimes;
+				m_pxmf4x4Transforms[i]._42		 = xmf3Position.y + m_pxmf3SphereVectors[i].y * m_fExplosionSpeed * m_fElapsedTimes;
+				m_pxmf4x4Transforms[i]._43		 = xmf3Position.z + m_pxmf3SphereVectors[i].z * m_fExplosionSpeed * m_fElapsedTimes;
+				m_pxmf4x4Transforms[i]			 = Matrix4x4::Multiply(Matrix4x4::RotationAxis(m_pxmf3SphereVectors[i], m_fExplosionRotation * m_fElapsedTimes), m_pxmf4x4Transforms[i]);
 			}
 		}
 		else
 		{
-			m_bBlowingUp = FALSE;
-			m_fElapsedTimes = 0.0f;
+			m_bBlowingUp		 = FALSE;
+			m_fElapsedTimes		 = 0.0f;
 		}
 	}
 	else
@@ -292,12 +292,12 @@ void CExplosiveObject::Render(HDC hDCFrameBuffer, CCamera *pCamera)
 {
 	if (m_bBlowingUp)
 	{
-		for (INT i{ 0 }; i < EXPLOSION_DEBRISES; ++i)
+		for (INT i = 0; i < EXPLOSION_DEBRISES; ++i)
 		{
 			if (m_pExplosionMesh)
 			{
-				HPEN hPen{ ::CreatePen(PS_SOLID, 0, m_dwColor) };
-				HPEN hOldPen{ (HPEN)::SelectObject(hDCFrameBuffer, hPen) };
+				HPEN hPen = ::CreatePen(PS_SOLID, 0, m_dwColor);
+				HPEN hOldPen = (HPEN)::SelectObject(hDCFrameBuffer, hPen);
 
 				m_pExplosionMesh->Render(hDCFrameBuffer, m_pxmf4x4Transforms[i], pCamera);
 				::SelectObject(hDCFrameBuffer, hOldPen);
@@ -330,37 +330,37 @@ void CBulletObject::SetFirePosition(XMFLOAT3 xmf3FirePosition)
 
 void CBulletObject::Animate(FLOAT fElapsedTime)
 {
-	FLOAT fDistance{ m_fMovingSpeed * fElapsedTime };
+	FLOAT fDistance = m_fMovingSpeed * fElapsedTime;
 #ifdef _WITH_VECTOR_OPERATION
-	XMFLOAT3 xmf3Position{ GetPosition() };
+	XMFLOAT3 xmf3Position = GetPosition();
 
 	m_fRotationAngle += m_fRotationSpeed * fElapsedTime;
 	
 	if (m_fRotationAngle > 360.0f)
 		m_fRotationAngle = m_fRotationAngle - 360.0f;
 
-	XMFLOAT4X4 mtxRotate1{ Matrix4x4::RotationYawPitchRoll(0.0f, m_fRotationAngle, 0.0f) };
-
-	XMFLOAT3	xmf3RotationAxis{ Vector3::CrossProduct(m_xmf3RotationAxis, m_xmf3MovingDirection, TRUE) };
-	FLOAT		fDotProduct{ Vector3::DotProduct(m_xmf3RotationAxis, m_xmf3MovingDirection) };
-	FLOAT		fRotationAngle{ ::IsEqual(fDotProduct, 1.0f) ? 0.0f : (FLOAT)XMConvertToDegrees(acos(fDotProduct)) };
-	XMFLOAT4X4	mtxRotate2{ Matrix4x4::RotationAxis(xmf3RotationAxis, fRotationAngle) };
+	XMFLOAT4X4		mtxRotate1 = Matrix4x4::RotationYawPitchRoll(0.0f, m_fRotationAngle, 0.0f);
+	XMFLOAT3		xmf3RotationAxis = Vector3::CrossProduct(m_xmf3RotationAxis, m_xmf3MovingDirection, TRUE);
+	FLOAT			fDotProduct = Vector3::DotProduct(m_xmf3RotationAxis, m_xmf3MovingDirection);
+	FLOAT			fRotationAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : (FLOAT)XMConvertToDegrees(acos(fDotProduct));
+	XMFLOAT4X4		mtxRotate2 = Matrix4x4::RotationAxis(xmf3RotationAxis, fRotationAngle);
 
 	m_xmf4x4World = Matrix4x4::Multiply(mtxRotate1, mtxRotate2);
 
-	XMFLOAT3 xmf3Movement{ Vector3::ScalarProduct(m_xmf3MovingDirection, fDistance, FALSE) };
+	XMFLOAT3 xmf3Movement = Vector3::ScalarProduct(m_xmf3MovingDirection, fDistance, FALSE);
 
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Movement);
 	SetPosition(xmf3Position);
 #else
-	XMFLOAT4X4 mtxRotate{ Matrix4x4::RotationYawPitchRoll(0.0f, m_fRotationSpeed * fElapsedTime, 0.0f) };
+	XMFLOAT4X4 mtxRotate = Matrix4x4::RotationYawPitchRoll(0.0f, m_fRotationSpeed * fElapsedTime, 0.0f);
 
 	m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
 
-	XMFLOAT3 xmf3Movement{ Vector3::ScalarProduct(m_xmf3MovingDirection, fDistance, FALSE) };
-	XMFLOAT3 xmf3Position{ GetPosition() };
+	XMFLOAT3 xmf3Movement = Vector3::ScalarProduct(m_xmf3MovingDirection, fDistance, FALSE);
+	XMFLOAT3 xmf3Position = GetPosition();
 
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Movement);
+
 	SetPosition(xmf3Position);
 #endif
 	UpdateBoundingBox();
@@ -368,4 +368,3 @@ void CBulletObject::Animate(FLOAT fElapsedTime)
 	if (Vector3::Distance(m_xmf3FirePosition, GetPosition()) > m_fBulletEffectiveRange)
 		SetActive(FALSE);
 }
-

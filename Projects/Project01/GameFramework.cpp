@@ -7,7 +7,7 @@
 
 CGameFramework::CGameFramework()
 {
-	_tcscpy_s(m_pszFrameRate, _T("다함께 차차차 ("));
+	_tcscpy_s(m_pszFrameRate, _T("LabProject ("));
 }
 
 CGameFramework::~CGameFramework()
@@ -18,8 +18,8 @@ BOOL CGameFramework::OnCreate(HINSTANCE hInstance, HWND hWnd)
 {
     ::srand(timeGetTime());
 
-	m_hInstance = hInstance;
-	m_hWnd = hWnd;
+	m_hInstance		 = hInstance;
+	m_hWnd			 = hWnd;
 
 	BuildFrameBuffer(); 
 	BuildObjects(); 
@@ -29,23 +29,23 @@ BOOL CGameFramework::OnCreate(HINSTANCE hInstance, HWND hWnd)
 
 void CGameFramework::BuildFrameBuffer()
 {
-	HDC hDC{ ::GetDC(m_hWnd) };
-	RECT rcClient;
+	HDC		 hDC = ::GetDC(m_hWnd);
+	RECT	 rcClient;
 
 	GetClientRect(m_hWnd, &rcClient);
 
     m_hDCFrameBuffer		 = ::CreateCompatibleDC(hDC);
 	m_hBitmapFrameBuffer	 = ::CreateCompatibleBitmap(hDC, (rcClient.right - rcClient.left) + 1, (rcClient.bottom - rcClient.top) + 1);
-    ::SelectObject(m_hDCFrameBuffer, m_hBitmapFrameBuffer);
 
+    ::SelectObject(m_hDCFrameBuffer, m_hBitmapFrameBuffer);
 	::ReleaseDC(m_hWnd, hDC);
     ::SetBkMode(m_hDCFrameBuffer, TRANSPARENT);
 }
 
 void CGameFramework::ClearFrameBuffer(DWORD dwColor)
 {
-	HBRUSH hBrush{ ::CreateSolidBrush(dwColor) };
-	HBRUSH hOldBrush{ (HBRUSH)::SelectObject(m_hDCFrameBuffer, hBrush) };
+	HBRUSH hBrush = ::CreateSolidBrush(dwColor);
+	HBRUSH hOldBrush = (HBRUSH)::SelectObject(m_hDCFrameBuffer, hBrush);
 
 	::Rectangle(m_hDCFrameBuffer, INT(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftX), INT(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftY), INT(m_pPlayer->m_pCamera->m_d3dViewport.Width), INT(m_pPlayer->m_pCamera->m_d3dViewport.Height));
     ::SelectObject(m_hDCFrameBuffer, hOldBrush);
@@ -54,7 +54,7 @@ void CGameFramework::ClearFrameBuffer(DWORD dwColor)
 
 void CGameFramework::PresentFrameBuffer()
 {    
-	HDC hDC{ ::GetDC(m_hWnd) };
+	HDC hDC = ::GetDC(m_hWnd);
 
     ::BitBlt(hDC, INT(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftX), INT(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftY), INT(m_pPlayer->m_pCamera->m_d3dViewport.Width), INT(m_pPlayer->m_pCamera->m_d3dViewport.Height), m_hDCFrameBuffer, INT(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftX), INT(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftY), SRCCOPY);
     ::ReleaseDC(m_hWnd, hDC);
@@ -96,30 +96,33 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 	switch (nMessageID)
 	{
 		case WM_KEYDOWN:
+		{
 			switch (wParam)
 			{
-				case VK_ESCAPE:
-				{
-					::PostQuitMessage(0);
-				
-					break;
-				}
-				case VK_RETURN:
-					break;
-				case VK_CONTROL:
-				{
-					((CAirplanePlayer*)m_pPlayer)->FireBullet(m_pSelectedObject);
-				
-					break;
-				}
-				default:
-				{
-					m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
-				
-					break;
-				}
+			case VK_ESCAPE:
+			{
+				::PostQuitMessage(0);
+
+				break;
 			}
+			case VK_RETURN:
+				break;
+			case VK_CONTROL:
+			{
+				((CAirplanePlayer*)m_pPlayer)->FireBullet(m_pSelectedObject);
+
+				break;
+			}
+			default:
+			{
+				m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+
+				break;
+			}
+			}
+
 			break;
+		}
 		default:
 			break;
 	}
@@ -162,7 +165,7 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 
 void CGameFramework::BuildObjects()
 {
-	CAirplaneMesh* pAirplaneMesh{ new CAirplaneMesh(6.0f, 6.0f, 1.0f) };
+	CAirplaneMesh* pAirplaneMesh = new CAirplaneMesh(6.0f, 6.0f, 1.0f);
 
 	m_pPlayer = new CAirplanePlayer();
 	m_pPlayer->SetPosition(0.0f, 0.0f, 0.0f);
@@ -205,8 +208,8 @@ void CGameFramework::OnDestroy()
 
 void CGameFramework::ProcessInput()
 {
-	static UCHAR pKeyBuffer[256];
-	DWORD dwDirection{ 0 };
+	static UCHAR	 pKeyBuffer[256];
+	DWORD			 dwDirection = 0;
 
 	if (GetKeyboardState(pKeyBuffer))
 	{
@@ -229,7 +232,7 @@ void CGameFramework::ProcessInput()
 			dwDirection |= DIR_DOWN;
 	}
 
-	FLOAT cxDelta{ 0.0f }, cyDelta{ 0.0f };
+	FLOAT cxDelta = 0.0f, cyDelta = 0.0f;
 	POINT ptCursorPos;
 
 	if (GetCapture() == m_hWnd)
@@ -269,7 +272,7 @@ void CGameFramework::FrameAdvance()
 
 	ProcessInput();
 
-	FLOAT fTimeElapsed{ m_GameTimer.GetTimeElapsed() };
+	FLOAT fTimeElapsed = m_GameTimer.GetTimeElapsed();
 
 	m_pPlayer->Animate(fTimeElapsed);
 	m_pScene->Animate(fTimeElapsed);

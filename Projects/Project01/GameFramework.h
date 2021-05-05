@@ -33,22 +33,21 @@ public:
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 private:
-	HINSTANCE					m_hInstance{ nullptr };
-	HWND						m_hWnd{ nullptr };
+	HINSTANCE					m_hInstance = nullptr;
+	HWND						m_hWnd = nullptr;
 public:
-	BOOL						m_bActive{ TRUE };
+	BOOL						m_bActive = TRUE;
 public:
 	CGameTimer					m_GameTimer;
 public:
-	HDC							m_hDCFrameBuffer{ nullptr };
-    HBITMAP						m_hBitmapFrameBuffer{ nullptr };
+	HDC							m_hDCFrameBuffer = nullptr;
+	HBITMAP						m_hBitmapFrameBuffer = nullptr;
 public:
-	CPlayer						*m_pPlayer{ nullptr };
-	CScene						*m_pScene{ nullptr };
-	CGameObject					*m_pSelectedObject{ nullptr };
+	CPlayer*					m_pPlayer = nullptr;
+	CScene*						m_pScene = nullptr;
+	CGameObject*				m_pSelectedObject = nullptr;
 public:
 	POINT						m_ptOldCursorPos;
 public:
 	_TCHAR						m_pszFrameRate[50];
 };
-

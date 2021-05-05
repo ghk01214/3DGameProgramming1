@@ -43,5 +43,3 @@ public:
 	BoundingFrustum				m_xmFrustumWorld;
 	XMFLOAT4X4					m_xmf4x4InverseView;
 };
-
-

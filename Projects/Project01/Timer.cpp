@@ -72,7 +72,7 @@ void CGameTimer::Tick(FLOAT fLockFPS)
 
     m_fTimeElapsed = 0.0f;
 
-	for (ULONG i{ 0 }; i < m_nSampleCount; ++i)
+	for (ULONG i = 0; i < m_nSampleCount; ++i)
 	{
 		m_fTimeElapsed += m_fFrameTime[i];
 	}

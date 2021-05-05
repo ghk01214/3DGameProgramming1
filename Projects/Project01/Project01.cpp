@@ -121,10 +121,10 @@ BOOL InitInstance(HINSTANCE hInstance, INT nCmdShow)
 
 	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
-	HWND hWnd{ CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, 0, 0, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance, nullptr) };
+	HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, 0, 0, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance, nullptr);
 	
 	if (!hWnd)
-		return(FALSE);
+		return FALSE;
 
 	if (!gGameFramework.OnCreate(hInstance, hWnd))
 		return FALSE;
@@ -152,13 +152,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_SIZE:
 	{
 		if (wParam == SIZE_MINIMIZED)
-		{
 			gGameFramework.SetActive(FALSE);
-		}
 		else
-		{
 			gGameFramework.SetActive(TRUE);
-		}
 
 		break;
 	}

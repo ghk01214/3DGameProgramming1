@@ -26,10 +26,10 @@ public:
 	CGameObject *PickObjectPointedByCursor(INT xClient, INT yClient, CCamera *pCamera);
 
 public:
-	CPlayer*					m_pPlayer{ nullptr };
+	CPlayer*					m_pPlayer = nullptr;
 public:
-	INT							m_nObjects{ 0 };
-	CGameObject**				m_ppObjects{ nullptr };
+	INT							m_nObjects = 0;
+	CGameObject**				m_ppObjects = nullptr;
 public:
-	CWallsObject*				m_pWallsObject{ nullptr };
+	CWallsObject*				m_pWallsObject = nullptr;
 };

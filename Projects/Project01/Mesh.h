@@ -7,7 +7,7 @@
 class CVertex
 {
 public:
-	CVertex() { }
+	CVertex() {}
 	CVertex(FLOAT x, FLOAT y, FLOAT z) { m_xmf3Position = XMFLOAT3(x, y, z); }
 public:
 	XMFLOAT3					m_xmf3Position;
@@ -23,7 +23,7 @@ public:
 
 public:
 	INT							m_nVertices;
-	CVertex						*m_pVertices;
+	CVertex*					m_pVertices;
 };
 
 class CMesh
@@ -45,7 +45,7 @@ private:
 	INT							m_nReferences;
 private:
 	INT							m_nPolygons;
-	CPolygon					**m_ppPolygons;
+	CPolygon**					m_ppPolygons;
 public:
 	BoundingOrientedBox			m_xmOOBB;
 };

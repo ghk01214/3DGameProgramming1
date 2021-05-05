@@ -25,16 +25,16 @@ void CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 				case '4': case '5': case '6':
 				case '7': case '8': case '9':
 				{
-					CExplosiveObject* pExplosiveObject{ (CExplosiveObject*)m_ppObjects[INT(wParam - '1')] };
+					CExplosiveObject* pExplosiveObject = (CExplosiveObject*)m_ppObjects[INT(wParam - '1')];
 					pExplosiveObject->m_bBlowingUp = TRUE;
 
 					break;
 				}
 				case 'A':
 				{
-					for (INT i{ 0 }; i < m_nObjects; ++i)
+					for (INT i = 0; i < m_nObjects; ++i)
 					{
-						CExplosiveObject* pExplosiveObject{ (CExplosiveObject*)m_ppObjects[i] };
+						CExplosiveObject* pExplosiveObject = (CExplosiveObject*)m_ppObjects[i];
 						pExplosiveObject->m_bBlowingUp = TRUE;
 					}
 
@@ -55,8 +55,8 @@ void CScene::BuildObjects()
 {
 	CExplosiveObject::PrepareExplosion();
 
-	FLOAT		fHalfWidth{ 45.0f }, fHalfHeight{ 45.0f }, fHalfDepth{ 110.0f };
-	CWallMesh*	pWallCubeMesh{ new CWallMesh(fHalfWidth * 2.0f, fHalfHeight * 2.0f, fHalfDepth * 2.0f, 30) };
+	FLOAT		fHalfWidth = 45.0f, fHalfHeight = 45.0f, fHalfDepth = 110.0f;
+	CWallMesh*	pWallCubeMesh = new CWallMesh(fHalfWidth * 2.0f, fHalfHeight * 2.0f, fHalfDepth * 2.0f, 30);
 
 	m_pWallsObject = new CWallsObject();
 	m_pWallsObject->SetPosition(0.0f, 0.0f, 0.0f);
@@ -70,10 +70,10 @@ void CScene::BuildObjects()
 	m_pWallsObject->m_pxmf4WallPlanes[5] = XMFLOAT4(0.0f, 0.0f, -1.0f, fHalfDepth);
 	m_pWallsObject->m_xmOOBBPlayerMoveCheck = BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(fHalfWidth, fHalfHeight, fHalfDepth * 0.05f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 
-	CCubeMesh* pObjectCubeMesh{ new CCubeMesh(4.0f, 4.0f, 4.0f) };
+	CCubeMesh* pObjectCubeMesh = new CCubeMesh(4.0f, 4.0f, 4.0f);
 
-	m_nObjects = 10;
-	m_ppObjects = new CGameObject*[m_nObjects];
+	m_nObjects		 = 10;
+	m_ppObjects		 = new CGameObject*[m_nObjects];
 
 	m_ppObjects[0] = new CExplosiveObject();
 	m_ppObjects[0]->SetMesh(pObjectCubeMesh);
@@ -171,7 +171,7 @@ void CScene::ReleaseObjects()
 	if (CExplosiveObject::m_pExplosionMesh)
 		CExplosiveObject::m_pExplosionMesh->Release();
 
-	for (INT i{ 0 }; i < m_nObjects; ++i)
+	for (INT i = 0; i < m_nObjects; ++i)
 	{
 		if (m_ppObjects[i])
 			delete m_ppObjects[i];
@@ -191,16 +191,16 @@ CGameObject *CScene::PickObjectPointedByCursor(INT xClient, INT yClient, CCamera
 	xmf3PickPosition.y = -(((2.0f * yClient) / pCamera->m_d3dViewport.Height) - 1) / pCamera->m_xmf4x4Projection._22;
 	xmf3PickPosition.z = 1.0f;
 
-	XMVECTOR xmvPickPosition{ XMLoadFloat3(&xmf3PickPosition) };
-	XMMATRIX xmmtxView{ XMLoadFloat4x4(&pCamera->m_xmf4x4View) };
+	XMVECTOR xmvPickPosition = XMLoadFloat3(&xmf3PickPosition);
+	XMMATRIX xmmtxView = XMLoadFloat4x4(&pCamera->m_xmf4x4View);
 
-	INT				nIntersected{ 0 };
-	FLOAT			fNearestHitDistance{ FLT_MAX };
-	CGameObject*	pNearestObject{ nullptr };
+	INT				nIntersected = 0;
+	FLOAT			fNearestHitDistance = FLT_MAX;
+	CGameObject*	pNearestObject = nullptr;
 
-	for (INT i{ 0 }; i < m_nObjects; ++i)
+	for (INT i = 0; i < m_nObjects; ++i)
 	{
-		FLOAT fHitDistance{ FLT_MAX };
+		FLOAT fHitDistance = FLT_MAX;
 
 		nIntersected = m_ppObjects[i]->PickObjectByRayIntersection(xmvPickPosition, xmmtxView, &fHitDistance);
 
@@ -216,14 +216,14 @@ CGameObject *CScene::PickObjectPointedByCursor(INT xClient, INT yClient, CCamera
 
 void CScene::CheckObjectByObjectCollisions()
 {
-	for (INT i{ 0 }; i < m_nObjects; ++i)
+	for (INT i = 0; i < m_nObjects; ++i)
 	{
 		m_ppObjects[i]->m_pObjectCollided = nullptr;
 	}
 
-	for (INT i{ 0 }; i < m_nObjects; ++i)
+	for (INT i = 0; i < m_nObjects; ++i)
 	{
-		for (INT j{ (i + 1) }; j < m_nObjects; ++j)
+		for (INT j = (i + 1); j < m_nObjects; ++j)
 		{
 			if (m_ppObjects[i]->m_xmOOBB.Intersects(m_ppObjects[j]->m_xmOOBB))
 			{
@@ -233,12 +233,12 @@ void CScene::CheckObjectByObjectCollisions()
 		}
 	}
 
-	for (INT i{ 0 }; i < m_nObjects; ++i)
+	for (INT i = 0; i < m_nObjects; ++i)
 	{
 		if (m_ppObjects[i]->m_pObjectCollided)
 		{
-			XMFLOAT3	 xmf3MovingDirection{ m_ppObjects[i]->m_xmf3MovingDirection };
-			FLOAT		 fMovingSpeed{ m_ppObjects[i]->m_fMovingSpeed };
+			XMFLOAT3	 xmf3MovingDirection = m_ppObjects[i]->m_xmf3MovingDirection;
+			FLOAT		 fMovingSpeed =m_ppObjects[i]->m_fMovingSpeed;
 
 			m_ppObjects[i]->m_xmf3MovingDirection = m_ppObjects[i]->m_pObjectCollided->m_xmf3MovingDirection;
 			m_ppObjects[i]->m_fMovingSpeed = m_ppObjects[i]->m_pObjectCollided->m_fMovingSpeed;
@@ -252,19 +252,19 @@ void CScene::CheckObjectByObjectCollisions()
 
 void CScene::CheckObjectByWallCollisions()
 {
-	for (INT i{ 0 }; i < m_nObjects; ++i)
+	for (INT i = 0; i < m_nObjects; ++i)
 	{
-		ContainmentType containType{ m_pWallsObject->m_xmOOBB.Contains(m_ppObjects[i]->m_xmOOBB) };
+		ContainmentType containType = m_pWallsObject->m_xmOOBB.Contains(m_ppObjects[i]->m_xmOOBB);
 
 		switch (containType)
 		{
 			case DISJOINT:
 			{
-				INT nPlaneIndex{ -1 };
+				INT nPlaneIndex = -1;
 
-				for (INT j{ 0 }; j < 6; ++j)
+				for (INT j = 0; j < 6; ++j)
 				{
-					PlaneIntersectionType INTersectType{ m_ppObjects[i]->m_xmOOBB.Intersects(XMLoadFloat4(&m_pWallsObject->m_pxmf4WallPlanes[j])) };
+					PlaneIntersectionType INTersectType = m_ppObjects[i]->m_xmOOBB.Intersects(XMLoadFloat4(&m_pWallsObject->m_pxmf4WallPlanes[j]));
 
 					if (INTersectType == BACK)
 					{
@@ -276,8 +276,8 @@ void CScene::CheckObjectByWallCollisions()
 
 				if (nPlaneIndex != -1)
 				{
-					XMVECTOR xmvNormal{ XMVectorSet(m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].x, m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].y, m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].z, 0.0f) };
-					XMVECTOR xmvReflect{ XMVector3Reflect(XMLoadFloat3(&m_ppObjects[i]->m_xmf3MovingDirection), xmvNormal) };
+					XMVECTOR xmvNormal = XMVectorSet(m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].x, m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].y, m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].z, 0.0f);
+					XMVECTOR xmvReflect = XMVector3Reflect(XMLoadFloat3(&m_ppObjects[i]->m_xmf3MovingDirection), xmvNormal);
 
 					XMStoreFloat3(&m_ppObjects[i]->m_xmf3MovingDirection, xmvReflect);
 				}
@@ -286,11 +286,11 @@ void CScene::CheckObjectByWallCollisions()
 			}
 			case INTERSECTS:
 			{
-				INT nPlaneIndex{ -1 };
+				INT nPlaneIndex = -1;
 
-				for (INT j{ 0 }; j < 6; ++j)
+				for (INT j = 0; j < 6; ++j)
 				{
-					PlaneIntersectionType INTersectType{ m_ppObjects[i]->m_xmOOBB.Intersects(XMLoadFloat4(&m_pWallsObject->m_pxmf4WallPlanes[j])) };
+					PlaneIntersectionType INTersectType = m_ppObjects[i]->m_xmOOBB.Intersects(XMLoadFloat4(&m_pWallsObject->m_pxmf4WallPlanes[j]));
 
 					if (INTersectType == INTERSECTING)
 					{
@@ -302,8 +302,8 @@ void CScene::CheckObjectByWallCollisions()
 
 				if (nPlaneIndex != -1)
 				{
-					XMVECTOR xmvNormal{ XMVectorSet(m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].x, m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].y, m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].z, 0.0f) };
-					XMVECTOR xmvReflect{ XMVector3Reflect(XMLoadFloat3(&m_ppObjects[i]->m_xmf3MovingDirection), xmvNormal) };
+					XMVECTOR xmvNormal = XMVectorSet(m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].x, m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].y, m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].z, 0.0f);
+					XMVECTOR xmvReflect = XMVector3Reflect(XMLoadFloat3(&m_ppObjects[i]->m_xmf3MovingDirection), xmvNormal);
 					
 					XMStoreFloat3(&m_ppObjects[i]->m_xmf3MovingDirection, xmvReflect);
 				}
@@ -329,15 +329,15 @@ void CScene::CheckPlayerByWallCollision()
 
 void CScene::CheckObjectByBulletCollisions()
 {
-	CBulletObject** ppBullets{ ((CAirplanePlayer*)m_pPlayer)->m_ppBullets };
+	CBulletObject** ppBullets = ((CAirplanePlayer*)m_pPlayer)->m_ppBullets;
 
-	for (INT i{ 0 }; i < m_nObjects; ++i)
+	for (INT i = 0; i < m_nObjects; ++i)
 	{
-		for (INT j{ 0 }; j < BULLETS; ++j)
+		for (INT j = 0; j < BULLETS; ++j)
 		{
 			if (ppBullets[j]->m_bActive && m_ppObjects[i]->m_xmOOBB.Intersects(ppBullets[j]->m_xmOOBB)) 
 			{
-				CExplosiveObject* pExplosiveObject{ (CExplosiveObject*)m_ppObjects[i] };
+				CExplosiveObject* pExplosiveObject = (CExplosiveObject*)m_ppObjects[i];
 
 				pExplosiveObject->m_bBlowingUp = TRUE;
 				ppBullets[j]->m_bActive = FALSE;
@@ -350,7 +350,7 @@ void CScene::Animate(FLOAT fElapsedTime)
 {
 	m_pWallsObject->Animate(fElapsedTime);
 
-	for (INT i{ 0 }; i < m_nObjects; ++i)
+	for (INT i = 0; i < m_nObjects; ++i)
 	{
 		m_ppObjects[i]->Animate(fElapsedTime);
 	}
@@ -365,9 +365,8 @@ void CScene::Render(HDC hDCFrameBuffer, CCamera *pCamera)
 {
 	m_pWallsObject->Render(hDCFrameBuffer, pCamera);
 
-	for (INT i{ 0 }; i < m_nObjects; ++i)
+	for (INT i = 0; i < m_nObjects; ++i)
 	{
 		m_ppObjects[i]->Render(hDCFrameBuffer, pCamera);
 	}
 }
-

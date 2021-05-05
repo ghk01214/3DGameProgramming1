@@ -32,6 +32,7 @@ void CPlayer::SetPosition(FLOAT x, FLOAT y, FLOAT z)
 void CPlayer::SetCameraOffset(XMFLOAT3& xmf3CameraOffset)
 {
 	m_xmf3CameraOffset = xmf3CameraOffset;
+
 	m_pCamera->SetLookAt(Vector3::Add(m_xmf3Position, m_xmf3CameraOffset), m_xmf3Position, m_xmf3Up);
 	m_pCamera->GenerateViewMatrix();
 }
@@ -88,21 +89,21 @@ void CPlayer::Rotate(FLOAT fPitch, FLOAT fYaw, FLOAT fRoll)
 
 	if (fPitch != 0.0f)
 	{
-		XMMATRIX mtxRotate{ XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Right), XMConvertToRadians(fPitch)) };
+		XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Right), XMConvertToRadians(fPitch));
 
 		m_xmf3Look	 = Vector3::TransformNormal(m_xmf3Look, mtxRotate);
 		m_xmf3Up	 = Vector3::TransformNormal(m_xmf3Up, mtxRotate);
 	}
 	if (fYaw != 0.0f)
 	{
-		XMMATRIX mtxRotate{ XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(fYaw)) };
+		XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(fYaw));
 
 		m_xmf3Look	 = Vector3::TransformNormal(m_xmf3Look, mtxRotate);
 		m_xmf3Right	 = Vector3::TransformNormal(m_xmf3Right, mtxRotate);
 	}
 	if (fRoll != 0.0f)
 	{
-		XMMATRIX mtxRotate{ XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Look), XMConvertToRadians(fRoll)) };
+		XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Look), XMConvertToRadians(fRoll));
 
 		m_xmf3Up	 = Vector3::TransformNormal(m_xmf3Up, mtxRotate);
 		m_xmf3Right	 = Vector3::TransformNormal(m_xmf3Right, mtxRotate);
@@ -115,7 +116,7 @@ void CPlayer::Rotate(FLOAT fPitch, FLOAT fYaw, FLOAT fRoll)
 
 void CPlayer::LookAt(XMFLOAT3& xmf3LookAt, XMFLOAT3& xmf3Up)
 {
-	XMFLOAT4X4 xmf4x4View{ Matrix4x4::LookAtLH(m_xmf3Position, xmf3LookAt, xmf3Up) };
+	XMFLOAT4X4 xmf4x4View = Matrix4x4::LookAtLH(m_xmf3Position, xmf3LookAt, xmf3Up);
 
 	m_xmf3Right		 = Vector3::Normalize(XMFLOAT3(xmf4x4View._11, xmf4x4View._21, xmf4x4View._31));
 	m_xmf3Up		 = Vector3::Normalize(XMFLOAT3(xmf4x4View._12, xmf4x4View._22, xmf4x4View._32));
@@ -129,9 +130,9 @@ void CPlayer::Update(FLOAT fTimeElapsed)
 	m_pCamera->Update(this, m_xmf3Position, fTimeElapsed);
 	m_pCamera->GenerateViewMatrix();
 
-	XMFLOAT3	 xmf3Deceleration{ Vector3::Normalize(Vector3::ScalarProduct(m_xmf3Velocity, -1.0f)) };
-	FLOAT		 fLength{ Vector3::Length(m_xmf3Velocity) };
-	FLOAT		 fDeceleration{ m_fFriction * fTimeElapsed };
+	XMFLOAT3	 xmf3Deceleration = Vector3::Normalize(Vector3::ScalarProduct(m_xmf3Velocity, -1.0f));
+	FLOAT		 fLength = Vector3::Length(m_xmf3Velocity);
+	FLOAT		 fDeceleration = m_fFriction * fTimeElapsed;
 
 	if (fDeceleration > fLength)
 		fDeceleration = fLength;
@@ -163,9 +164,9 @@ void CPlayer::Render(HDC hDCFrameBuffer, CCamera *pCamera)
 //
 CAirplanePlayer::CAirplanePlayer()
 {
-	CCubeMesh* pBulletMesh{ new CCubeMesh(1.0f, 4.0f, 1.0f) };
+	CCubeMesh* pBulletMesh = new CCubeMesh(1.0f, 4.0f, 1.0f);
 
-	for (INT i{ 0 }; i < BULLETS; ++i)
+	for (INT i = 0; i < BULLETS; ++i)
 	{
 		m_ppBullets[i] = new CBulletObject(m_fBulletEffectiveRange);
 		m_ppBullets[i]->SetMesh(pBulletMesh);
@@ -178,7 +179,7 @@ CAirplanePlayer::CAirplanePlayer()
 
 CAirplanePlayer::~CAirplanePlayer()
 {
-	for (INT i{ 0 }; i < BULLETS; ++i)
+	for (INT i = 0; i < BULLETS; ++i)
 	{
 		if (m_ppBullets[i])
 			delete m_ppBullets[i];
@@ -189,7 +190,7 @@ void CAirplanePlayer::Animate(FLOAT fElapsedTime)
 {
 	CPlayer::Animate(fElapsedTime);
 
-	for (INT i{ 0 }; i < BULLETS; ++i)
+	for (INT i = 0; i < BULLETS; ++i)
 	{
 		if (m_ppBullets[i]->m_bActive)
 			m_ppBullets[i]->Animate(fElapsedTime);
@@ -207,7 +208,7 @@ void CAirplanePlayer::Render(HDC hDCFrameBuffer, CCamera *pCamera)
 {
 	CPlayer::Render(hDCFrameBuffer, pCamera);
 
-	for (INT i{ 0 }; i < BULLETS; ++i)
+	for (INT i = 0; i < BULLETS; ++i)
 	{
 		if (m_ppBullets[i]->m_bActive)
 			m_ppBullets[i]->Render(hDCFrameBuffer, pCamera);
@@ -221,9 +222,9 @@ void CAirplanePlayer::FireBullet(CGameObject *pSelectedObject)
 
 	OnUpdateTransform();
 
-	CBulletObject *pBulletObject{ nullptr };
+	CBulletObject *pBulletObject = nullptr;
 
-	for (INT i{ 0 }; i < BULLETS; ++i)
+	for (INT i = 0; i < BULLETS; ++i)
 	{
 		if (!m_ppBullets[i]->m_bActive)
 		{
@@ -235,17 +236,16 @@ void CAirplanePlayer::FireBullet(CGameObject *pSelectedObject)
 
 	if (pBulletObject)
 	{
-		XMFLOAT3 xmf3Position{ GetPosition() };
-		XMFLOAT3 xmf3Direction{ GetUp() };
-		XMFLOAT3 xmf3FirePosition{ Vector3::Add(xmf3Position, Vector3::ScalarProduct(xmf3Direction, 6.0f, FALSE)) };
+		XMFLOAT3 xmf3Position = GetPosition();
+		XMFLOAT3 xmf3Direction = GetUp();
+		XMFLOAT3 xmf3FirePosition = Vector3::Add(xmf3Position, Vector3::ScalarProduct(xmf3Direction, 6.0f, FALSE));
 
 //		pBulletObject->LookAt(xmf3FirePosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 
-		pBulletObject->m_xmf4x4World = m_xmf4x4World;
-
-		pBulletObject->m_xmf4x4World._41 = xmf3FirePosition.x;
-		pBulletObject->m_xmf4x4World._42 = xmf3FirePosition.y;
-		pBulletObject->m_xmf4x4World._43 = xmf3FirePosition.z;
+		pBulletObject->m_xmf4x4World		 = m_xmf4x4World;
+		pBulletObject->m_xmf4x4World._41	 = xmf3FirePosition.x;
+		pBulletObject->m_xmf4x4World._42	 = xmf3FirePosition.y;
+		pBulletObject->m_xmf4x4World._43	 = xmf3FirePosition.z;
 
 		pBulletObject->SetFirePosition(xmf3FirePosition);
 		pBulletObject->SetMovingDirection(xmf3Direction);
