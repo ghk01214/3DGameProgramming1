@@ -14,80 +14,77 @@ CGameFramework::~CGameFramework()
 {
 }
 
-BOOL CGameFramework::OnCreate(HINSTANCE hInstance, HWND hWnd)
+BOOL CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 {
-    ::srand(timeGetTime());
+	::srand(timeGetTime());
 
-	m_hInstance		 = hInstance;
-	m_hWnd			 = hWnd;
+	m_hInstance = hInstance;
+	m_hWnd = hMainWnd;
 
-	BuildFrameBuffer(); 
-	BuildObjects(); 
+	BuildFrameBuffer();
 
-	return TRUE;
+	BuildObjects();
+
+	return(TRUE);
 }
 
 void CGameFramework::BuildFrameBuffer()
 {
-	HDC		 hDC = ::GetDC(m_hWnd);
-	RECT	 rcClient;
+	HDC hDC = ::GetDC(m_hWnd);
 
+	RECT rcClient;
 	GetClientRect(m_hWnd, &rcClient);
 
-    m_hDCFrameBuffer		 = ::CreateCompatibleDC(hDC);
-	m_hBitmapFrameBuffer	 = ::CreateCompatibleBitmap(hDC, (rcClient.right - rcClient.left) + 1, (rcClient.bottom - rcClient.top) + 1);
+	m_hDCFrameBuffer = ::CreateCompatibleDC(hDC);
+	m_hBitmapFrameBuffer = ::CreateCompatibleBitmap(hDC, (rcClient.right - rcClient.left) + 1, (rcClient.bottom - rcClient.top) + 1);
+	::SelectObject(m_hDCFrameBuffer, m_hBitmapFrameBuffer);
 
-    ::SelectObject(m_hDCFrameBuffer, m_hBitmapFrameBuffer);
 	::ReleaseDC(m_hWnd, hDC);
-    ::SetBkMode(m_hDCFrameBuffer, TRANSPARENT);
+	::SetBkMode(m_hDCFrameBuffer, TRANSPARENT);
 }
 
 void CGameFramework::ClearFrameBuffer(DWORD dwColor)
 {
 	HBRUSH hBrush = ::CreateSolidBrush(dwColor);
 	HBRUSH hOldBrush = (HBRUSH)::SelectObject(m_hDCFrameBuffer, hBrush);
-
 	::Rectangle(m_hDCFrameBuffer, INT(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftX), INT(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftY), INT(m_pPlayer->m_pCamera->m_d3dViewport.Width), INT(m_pPlayer->m_pCamera->m_d3dViewport.Height));
-    ::SelectObject(m_hDCFrameBuffer, hOldBrush);
-    ::DeleteObject(hBrush);
+	::SelectObject(m_hDCFrameBuffer, hOldBrush);
+	::DeleteObject(hBrush);
 }
 
 void CGameFramework::PresentFrameBuffer()
-{    
+{
 	HDC hDC = ::GetDC(m_hWnd);
-
-    ::BitBlt(hDC, INT(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftX), INT(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftY), INT(m_pPlayer->m_pCamera->m_d3dViewport.Width), INT(m_pPlayer->m_pCamera->m_d3dViewport.Height), m_hDCFrameBuffer, INT(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftX), INT(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftY), SRCCOPY);
-    ::ReleaseDC(m_hWnd, hDC);
+	::BitBlt(hDC, INT(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftX), INT(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftY), INT(m_pPlayer->m_pCamera->m_d3dViewport.Width), INT(m_pPlayer->m_pCamera->m_d3dViewport.Height), m_hDCFrameBuffer, INT(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftX), INT(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftY), SRCCOPY);
+	::ReleaseDC(m_hWnd, hDC);
 }
 
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	switch (nMessageID)
 	{
-		case WM_RBUTTONDOWN:
-		{
-			m_pSelectedObject = m_pScene->PickObjectPointedByCursor(LOWORD(lParam), HIWORD(lParam), m_pPlayer->m_pCamera);
-		
-			break;
-		}
-		case WM_LBUTTONDOWN:
-		{
-			::SetCapture(hWnd);
-			::GetCursorPos(&m_ptOldCursorPos);
+	case WM_RBUTTONDOWN:
+	{
+		m_pSelectedObject = m_pScene->PickObjectPointedByCursor(LOWORD(lParam), HIWORD(lParam), m_pPlayer->m_pCamera);
 
-			break;
-		}
-		case WM_LBUTTONUP:
-		case WM_RBUTTONUP:
-		{
-			::ReleaseCapture();
-		
-			break;
-		}
-		case WM_MOUSEMOVE:
-			break;
-		default:
-			break;
+		break;
+	}
+	case WM_LBUTTONDOWN:
+	{
+		::SetCapture(hWnd);
+		::GetCursorPos(&m_ptOldCursorPos);
+	
+		break;
+	}
+	case WM_LBUTTONUP: case WM_RBUTTONUP:
+	{
+		::ReleaseCapture();
+		break;
+	}
+	case WM_MOUSEMOVE:
+		break;
+	default:
+		break;
 	}
 }
 
@@ -95,36 +92,30 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 {
 	switch (nMessageID)
 	{
-		case WM_KEYDOWN:
+	case WM_KEYDOWN:
+	{
+		switch (wParam)
 		{
-			switch (wParam)
-			{
-			case VK_ESCAPE:
-			{
-				::PostQuitMessage(0);
-
-				break;
-			}
-			case VK_RETURN:
-				break;
-			case VK_CONTROL:
-			{
-				((CAirplanePlayer*)m_pPlayer)->FireBullet(m_pSelectedObject);
-
-				break;
-			}
-			default:
-			{
-				m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
-
-				break;
-			}
-			}
+		case VK_ESCAPE:
+		{
+			::PostQuitMessage(0);
 
 			break;
 		}
-		default:
+		case VK_RETURN:
 			break;
+		default:
+		{
+			m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+
+			break;
+		}
+		}
+
+		break;
+	}
+	default:
+		break;
 	}
 }
 
@@ -132,46 +123,44 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 {
 	switch (nMessageID)
 	{
-		case WM_ACTIVATE:
-		{
-			if (LOWORD(wParam) == WA_INACTIVE)
-				m_GameTimer.Stop();
-			else
-				m_GameTimer.Start();
+	case WM_ACTIVATE:
+	{
+		if (LOWORD(wParam) == WA_INACTIVE)
+			m_GameTimer.Stop();
+		else
+			m_GameTimer.Start();
 
-			break;
-		}
-		case WM_SIZE:
-			break;
-		case WM_LBUTTONDOWN: case WM_LBUTTONUP:
-		case WM_RBUTTONDOWN: case WM_RBUTTONUP:
-		case WM_MOUSEMOVE:
-		{
-			OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+		break;
+	}
+	case WM_LBUTTONDOWN: case WM_LBUTTONUP:
+	case WM_RBUTTONDOWN: case WM_RBUTTONUP:
+	case WM_MOUSEMOVE:
+	{
+		OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 
-			break;
-		}
-		case WM_KEYDOWN:
-		case WM_KEYUP:
-		{
-			OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
-		
-			break;
-		}
-		}
+		break;
+	}
+	case WM_KEYDOWN: case WM_KEYUP:
+	{
+		OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 
-		return 0;
+		break;
+	}
+	case WM_SIZE:
+		break;
+	}
+	return(0);
 }
 
 void CGameFramework::BuildObjects()
 {
-	CAirplaneMesh* pAirplaneMesh = new CAirplaneMesh(6.0f, 6.0f, 1.0f);
+	CCarMesh* pCarMesh = new CCarMesh(6.0f, 6.0f, 1.0f);
 
-	m_pPlayer = new CAirplanePlayer();
+	m_pPlayer = new CCarPlayer();
 	m_pPlayer->SetPosition(0.0f, 0.0f, 0.0f);
-	m_pPlayer->SetMesh(pAirplaneMesh);
+	m_pPlayer->SetMesh(pCarMesh);
 	m_pPlayer->SetColor(RGB(0, 0, 255));
-	m_pPlayer->SetCameraOffset(XMFLOAT3(0.0f, 5.0f, -15.0f));
+	m_pPlayer->SetCameraOffset(XMFLOAT3(0.0f, 15.0f, -15.0f));
 
 	m_pScene = new CScene();
 	m_pScene->BuildObjects();
@@ -196,20 +185,20 @@ void CGameFramework::OnDestroy()
 {
 	ReleaseObjects();
 
-	if (m_hBitmapFrameBuffer) 
+	if (m_hBitmapFrameBuffer)
 		::DeleteObject(m_hBitmapFrameBuffer);
 
-    if (m_hDCFrameBuffer)
+	if (m_hDCFrameBuffer)
 		::DeleteDC(m_hDCFrameBuffer);
 
-    if (m_hWnd)
+	if (m_hWnd)
 		DestroyWindow(m_hWnd);
 }
 
 void CGameFramework::ProcessInput()
 {
-	static UCHAR	 pKeyBuffer[256];
-	DWORD			 dwDirection = 0;
+	static UCHAR pKeyBuffer[256];
+	DWORD dwDirection = 0;
 
 	if (GetKeyboardState(pKeyBuffer))
 	{
@@ -255,17 +244,16 @@ void CGameFramework::ProcessInput()
 			else
 				m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 		}
-
 		if (dwDirection)
-			m_pPlayer->Move(dwDirection, 0.15f);
+			m_pPlayer->Move(dwDirection, 0.5f);
 	}
 
 	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
 }
 
 void CGameFramework::FrameAdvance()
-{    
-    if (!m_bActive)
+{
+	if (!m_bActive)
 		return;
 
 	m_GameTimer.Tick(0.0f);
@@ -287,3 +275,5 @@ void CGameFramework::FrameAdvance()
 	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 }
+
+

@@ -41,7 +41,7 @@ using namespace DirectX::PackedVector;
 
 #define RANDOM_COLOR			(0xFF000000 | ((rand() * 0xFFFFFF) / RAND_MAX))
 
-#define EXPLOSION_DEBRISES		240
+#define EXPLOSION_DEBRISES		10
 
 //#define _WITH_VECTOR_OPERATION
 

@@ -17,46 +17,53 @@ void CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 {
 	switch (nMessageID)
 	{
-		case WM_KEYDOWN:
+	case WM_KEYDOWN:
+	{
+		switch (wParam)
 		{
-			switch (wParam)
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		{
+			CEnemyObject* pEnemyObject = (CEnemyObject*)m_ppObjects[INT(wParam - '1')];
+			pEnemyObject->m_bBlowingUp = TRUE;
+		
+			break;
+		}
+		case 'A':
+		{
+			for (INT i = 0; i < m_nObjects; ++i)
 			{
-				case '1': case '2': case '3':
-				case '4': case '5': case '6':
-				case '7': case '8': case '9':
-				{
-					CExplosiveObject* pExplosiveObject = (CExplosiveObject*)m_ppObjects[INT(wParam - '1')];
-					pExplosiveObject->m_bBlowingUp = TRUE;
+				CEnemyObject* pEnemyObject = (CEnemyObject*)m_ppObjects[i];
 
-					break;
-				}
-				case 'A':
-				{
-					for (INT i = 0; i < m_nObjects; ++i)
-					{
-						CExplosiveObject* pExplosiveObject = (CExplosiveObject*)m_ppObjects[i];
-						pExplosiveObject->m_bBlowingUp = TRUE;
-					}
-
-					break;
-				}
-				default:
-					break;
+				pEnemyObject->m_bBlowingUp = TRUE;
 			}
 
 			break;
 		}
 		default:
 			break;
+		}
+	
+		break;
+	}
+	default:
+		break;
 	}
 }
 
 void CScene::BuildObjects()
 {
-	CExplosiveObject::PrepareExplosion();
+	CEnemyObject::PrepareExplosion();
 
-	FLOAT		fHalfWidth = 45.0f, fHalfHeight = 45.0f, fHalfDepth = 110.0f;
-	CWallMesh*	pWallCubeMesh = new CWallMesh(fHalfWidth * 2.0f, fHalfHeight * 2.0f, fHalfDepth * 2.0f, 30);
+	FLOAT fHalfWidth = 45.0f, fHalfHeight = 45.0f, fHalfDepth = 30.0f;
+	CWallMesh* pWallCubeMesh = new CWallMesh(fHalfWidth * 2.0f, fHalfHeight * 2.0f, fHalfDepth * 2.0f, 30);
 
 	m_pWallsObject = new CWallsObject();
 	m_pWallsObject->SetPosition(0.0f, 0.0f, 0.0f);
@@ -70,106 +77,65 @@ void CScene::BuildObjects()
 	m_pWallsObject->m_pxmf4WallPlanes[5] = XMFLOAT4(0.0f, 0.0f, -1.0f, fHalfDepth);
 	m_pWallsObject->m_xmOOBBPlayerMoveCheck = BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(fHalfWidth, fHalfHeight, fHalfDepth * 0.05f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 
-	CCubeMesh* pObjectCubeMesh = new CCubeMesh(4.0f, 4.0f, 4.0f);
+	CEnemyMesh* pEnemyCarMesh = new CEnemyMesh(4.0f, 4.0f, 4.0f);
 
-	m_nObjects		 = 10;
-	m_ppObjects		 = new CGameObject*[m_nObjects];
+	m_nObjects = 10;
+	m_ppObjects = new CGameObject * [m_nObjects];
 
-	m_ppObjects[0] = new CExplosiveObject();
-	m_ppObjects[0]->SetMesh(pObjectCubeMesh);
+	for (int i = 0; i < 10; ++i)
+	{
+		m_ppObjects[i] = new CEnemyObject();
+		m_ppObjects[i]->SetMesh(pEnemyCarMesh);
+		m_ppObjects[i]->SetRotationSpeed(0.0f);
+		m_ppObjects[i]->SetMovingDirection(XMFLOAT3(0.0f, 0.0f, -1.0f));
+		m_ppObjects[i]->SetRotationAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+	}
+
 	m_ppObjects[0]->SetColor(RGB(255, 0, 0));
 	m_ppObjects[0]->SetPosition(-13.5f, 0.0f, -14.0f);
-	m_ppObjects[0]->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 1.0f));
-	m_ppObjects[0]->SetRotationSpeed(90.0f);
-	m_ppObjects[0]->SetMovingDirection(XMFLOAT3(1.0f, 0.0f, 0.0f));
 	m_ppObjects[0]->SetMovingSpeed(10.5f);
 
-	m_ppObjects[1] = new CExplosiveObject();
-	m_ppObjects[1]->SetMesh(pObjectCubeMesh);
 	m_ppObjects[1]->SetColor(RGB(0, 0, 255));
 	m_ppObjects[1]->SetPosition(+13.5f, 0.0f, -14.0f);
-	m_ppObjects[1]->SetRotationAxis(XMFLOAT3(1.0f, 1.0f, 0.0f));
-	m_ppObjects[1]->SetRotationSpeed(180.0f);
-	m_ppObjects[1]->SetMovingDirection(XMFLOAT3(-1.0f, 0.0f, 0.0f));
 	m_ppObjects[1]->SetMovingSpeed(8.8f);
 
-	m_ppObjects[2] = new CExplosiveObject();
-	m_ppObjects[2]->SetMesh(pObjectCubeMesh);
 	m_ppObjects[2]->SetColor(RGB(0, 255, 0));
-	m_ppObjects[2]->SetPosition(0.0f, +5.0f, 20.0f);
-	m_ppObjects[2]->SetRotationAxis(XMFLOAT3(1.0f, 1.0f, 0.0f));
-	m_ppObjects[2]->SetRotationSpeed(30.15f);
-	m_ppObjects[2]->SetMovingDirection(XMFLOAT3(1.0f, -1.0f, 0.0f));
+	m_ppObjects[2]->SetPosition(0.0f, 0.0f, 20.0f);
 	m_ppObjects[2]->SetMovingSpeed(5.2f);
 
-	m_ppObjects[3] = new CExplosiveObject();
-	m_ppObjects[3]->SetMesh(pObjectCubeMesh);
 	m_ppObjects[3]->SetColor(RGB(0, 255, 255));
 	m_ppObjects[3]->SetPosition(0.0f, 0.0f, 0.0f);
-	m_ppObjects[3]->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 1.0f));
-	m_ppObjects[3]->SetRotationSpeed(40.6f);
-	m_ppObjects[3]->SetMovingDirection(XMFLOAT3(0.0f, 0.0f, 1.0f));
 	m_ppObjects[3]->SetMovingSpeed(20.4f);
 
-	m_ppObjects[4] = new CExplosiveObject();
-	m_ppObjects[4]->SetMesh(pObjectCubeMesh);
 	m_ppObjects[4]->SetColor(RGB(128, 0, 255));
 	m_ppObjects[4]->SetPosition(10.0f, 0.0f, 0.0f);
-	m_ppObjects[4]->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
-	m_ppObjects[4]->SetRotationSpeed(50.06f);
-	m_ppObjects[4]->SetMovingDirection(XMFLOAT3(0.0f, 1.0f, 1.0f));
 	m_ppObjects[4]->SetMovingSpeed(6.4f);
 
-	m_ppObjects[5] = new CExplosiveObject();
-	m_ppObjects[5]->SetMesh(pObjectCubeMesh);
 	m_ppObjects[5]->SetColor(RGB(255, 0, 255));
 	m_ppObjects[5]->SetPosition(-10.0f, 0.0f, -10.0f);
-	m_ppObjects[5]->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
-	m_ppObjects[5]->SetRotationSpeed(60.06f);
-	m_ppObjects[5]->SetMovingDirection(XMFLOAT3(1.0f, 0.0f, 1.0f));
 	m_ppObjects[5]->SetMovingSpeed(8.9f);
 
-	m_ppObjects[6] = new CExplosiveObject();
-	m_ppObjects[6]->SetMesh(pObjectCubeMesh);
 	m_ppObjects[6]->SetColor(RGB(255, 0, 255));
-	m_ppObjects[6]->SetPosition(-10.0f, 10.0f, -10.0f);
-	m_ppObjects[6]->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
-	m_ppObjects[6]->SetRotationSpeed(60.06f);
-	m_ppObjects[6]->SetMovingDirection(XMFLOAT3(1.0f, 1.0f, 1.0f));
+	m_ppObjects[6]->SetPosition(-10.0f, 0.0f, -10.0f);
 	m_ppObjects[6]->SetMovingSpeed(9.7f);
 
-	m_ppObjects[7] = new CExplosiveObject();
-	m_ppObjects[7]->SetMesh(pObjectCubeMesh);
 	m_ppObjects[7]->SetColor(RGB(255, 0, 128));
-	m_ppObjects[7]->SetPosition(-10.0f, 10.0f, -20.0f);
-	m_ppObjects[7]->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
-	m_ppObjects[7]->SetRotationSpeed(70.06f);
-	m_ppObjects[7]->SetMovingDirection(XMFLOAT3(-1.0f, 1.0f, 1.0f));
+	m_ppObjects[7]->SetPosition(-10.0f, 0.0f, -20.0f);
 	m_ppObjects[7]->SetMovingSpeed(15.6f);
 
-	m_ppObjects[8] = new CExplosiveObject();
-	m_ppObjects[8]->SetMesh(pObjectCubeMesh);
 	m_ppObjects[8]->SetColor(RGB(128, 0, 255));
-	m_ppObjects[8]->SetPosition(-15.0f, 10.0f, -30.0f);
-	m_ppObjects[8]->SetRotationAxis(XMFLOAT3(1.0f, 1.0f, 0.0f));
-	m_ppObjects[8]->SetRotationSpeed(90.06f);
-	m_ppObjects[8]->SetMovingDirection(XMFLOAT3(0.0f, 0.0f, -1.0f));
+	m_ppObjects[8]->SetPosition(-15.0f, 0.0f, -30.0f);
 	m_ppObjects[8]->SetMovingSpeed(15.0f);
 
-	m_ppObjects[9] = new CExplosiveObject();
-	m_ppObjects[9]->SetMesh(pObjectCubeMesh);
 	m_ppObjects[9]->SetColor(RGB(255, 64, 64));
-	m_ppObjects[9]->SetPosition(+15.0f, 10.0f, 0.0f);
-	m_ppObjects[9]->SetRotationAxis(XMFLOAT3(1.0f, 1.0f, 0.0f));
-	m_ppObjects[9]->SetRotationSpeed(90.06f);
-	m_ppObjects[9]->SetMovingDirection(XMFLOAT3(-0.0f, 0.0f, -1.0f));
+	m_ppObjects[9]->SetPosition(+15.0f, 0.0f, 0.0f);
 	m_ppObjects[9]->SetMovingSpeed(15.0f);
 }
 
 void CScene::ReleaseObjects()
 {
-	if (CExplosiveObject::m_pExplosionMesh)
-		CExplosiveObject::m_pExplosionMesh->Release();
+	if (CEnemyObject::m_pExplosionMesh)
+		CEnemyObject::m_pExplosionMesh->Release();
 
 	for (INT i = 0; i < m_nObjects; ++i)
 	{
@@ -184,7 +150,7 @@ void CScene::ReleaseObjects()
 		delete m_pWallsObject;
 }
 
-CGameObject *CScene::PickObjectPointedByCursor(INT xClient, INT yClient, CCamera *pCamera)
+CGameObject* CScene::PickObjectPointedByCursor(INT xClient, INT yClient, CCamera* pCamera)
 {
 	XMFLOAT3 xmf3PickPosition;
 	xmf3PickPosition.x = (((2.0f * xClient) / pCamera->m_d3dViewport.Width) - 1) / pCamera->m_xmf4x4Projection._11;
@@ -194,9 +160,9 @@ CGameObject *CScene::PickObjectPointedByCursor(INT xClient, INT yClient, CCamera
 	XMVECTOR xmvPickPosition = XMLoadFloat3(&xmf3PickPosition);
 	XMMATRIX xmmtxView = XMLoadFloat4x4(&pCamera->m_xmf4x4View);
 
-	INT				nIntersected = 0;
-	FLOAT			fNearestHitDistance = FLT_MAX;
-	CGameObject*	pNearestObject = nullptr;
+	INT nIntersected = 0;
+	FLOAT fNearestHitDistance = FLT_MAX;
+	CGameObject* pNearestObject = nullptr;
 
 	for (INT i = 0; i < m_nObjects; ++i)
 	{
@@ -237,8 +203,8 @@ void CScene::CheckObjectByObjectCollisions()
 	{
 		if (m_ppObjects[i]->m_pObjectCollided)
 		{
-			XMFLOAT3	 xmf3MovingDirection = m_ppObjects[i]->m_xmf3MovingDirection;
-			FLOAT		 fMovingSpeed =m_ppObjects[i]->m_fMovingSpeed;
+			XMFLOAT3 xmf3MovingDirection = m_ppObjects[i]->m_xmf3MovingDirection;
+			FLOAT fMovingSpeed = m_ppObjects[i]->m_fMovingSpeed;
 
 			m_ppObjects[i]->m_xmf3MovingDirection = m_ppObjects[i]->m_pObjectCollided->m_xmf3MovingDirection;
 			m_ppObjects[i]->m_fMovingSpeed = m_ppObjects[i]->m_pObjectCollided->m_fMovingSpeed;
@@ -258,60 +224,60 @@ void CScene::CheckObjectByWallCollisions()
 
 		switch (containType)
 		{
-			case DISJOINT:
+		case DISJOINT:
+		{
+			INT nPlaneIndex = -1;
+
+			for (INT j = 0; j < 6; ++j)
 			{
-				INT nPlaneIndex = -1;
+				PlaneIntersectionType intersectType = m_ppObjects[i]->m_xmOOBB.Intersects(XMLoadFloat4(&m_pWallsObject->m_pxmf4WallPlanes[j]));
 
-				for (INT j = 0; j < 6; ++j)
+				if (intersectType == BACK)
 				{
-					PlaneIntersectionType INTersectType = m_ppObjects[i]->m_xmOOBB.Intersects(XMLoadFloat4(&m_pWallsObject->m_pxmf4WallPlanes[j]));
+					nPlaneIndex = j;
 
-					if (INTersectType == BACK)
-					{
-						nPlaneIndex = j;
-
-						break;
-					}
+					break;
 				}
-
-				if (nPlaneIndex != -1)
-				{
-					XMVECTOR xmvNormal = XMVectorSet(m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].x, m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].y, m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].z, 0.0f);
-					XMVECTOR xmvReflect = XMVector3Reflect(XMLoadFloat3(&m_ppObjects[i]->m_xmf3MovingDirection), xmvNormal);
-
-					XMStoreFloat3(&m_ppObjects[i]->m_xmf3MovingDirection, xmvReflect);
-				}
-
-				break;
 			}
-			case INTERSECTS:
+
+			if (nPlaneIndex != -1)
 			{
-				INT nPlaneIndex = -1;
+				XMVECTOR xmvNormal = XMVectorSet(m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].x, m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].y, m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].z, 0.0f);
+				XMVECTOR xmvReflect = XMVector3Reflect(XMLoadFloat3(&m_ppObjects[i]->m_xmf3MovingDirection), xmvNormal);
+				
+				XMStoreFloat3(&m_ppObjects[i]->m_xmf3MovingDirection, xmvReflect);
+			}
 
-				for (INT j = 0; j < 6; ++j)
+			break;
+		}
+		case INTERSECTS:
+		{
+			INT nPlaneIndex = -1;
+			
+			for (INT j = 0; j < 6; ++j)
+			{
+				PlaneIntersectionType intersectType = m_ppObjects[i]->m_xmOOBB.Intersects(XMLoadFloat4(&m_pWallsObject->m_pxmf4WallPlanes[j]));
+				
+				if (intersectType == INTERSECTING)
 				{
-					PlaneIntersectionType INTersectType = m_ppObjects[i]->m_xmOOBB.Intersects(XMLoadFloat4(&m_pWallsObject->m_pxmf4WallPlanes[j]));
-
-					if (INTersectType == INTERSECTING)
-					{
-						nPlaneIndex = j;
-
-						break;
-					}
-				}
-
-				if (nPlaneIndex != -1)
-				{
-					XMVECTOR xmvNormal = XMVectorSet(m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].x, m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].y, m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].z, 0.0f);
-					XMVECTOR xmvReflect = XMVector3Reflect(XMLoadFloat3(&m_ppObjects[i]->m_xmf3MovingDirection), xmvNormal);
+					nPlaneIndex = j;
 					
-					XMStoreFloat3(&m_ppObjects[i]->m_xmf3MovingDirection, xmvReflect);
+					break;
 				}
-
-				break;
 			}
-			case CONTAINS:
-				break;
+
+			if (nPlaneIndex != -1)
+			{
+				XMVECTOR xmvNormal = XMVectorSet(m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].x, m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].y, m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].z, 0.0f);
+				XMVECTOR xmvReflect = XMVector3Reflect(XMLoadFloat3(&m_ppObjects[i]->m_xmf3MovingDirection), xmvNormal);
+				
+				XMStoreFloat3(&m_ppObjects[i]->m_xmf3MovingDirection, xmvReflect);
+			}
+
+			break;
+		}
+		case CONTAINS:
+			break;
 		}
 	}
 }
@@ -319,31 +285,20 @@ void CScene::CheckObjectByWallCollisions()
 void CScene::CheckPlayerByWallCollision()
 {
 	BoundingOrientedBox xmOOBBPlayerMoveCheck;
-
+	
 	m_pWallsObject->m_xmOOBBPlayerMoveCheck.Transform(xmOOBBPlayerMoveCheck, XMLoadFloat4x4(&m_pWallsObject->m_xmf4x4World));
+	
 	XMStoreFloat4(&xmOOBBPlayerMoveCheck.Orientation, XMQuaternionNormalize(XMLoadFloat4(&xmOOBBPlayerMoveCheck.Orientation)));
 
 	if (!xmOOBBPlayerMoveCheck.Intersects(m_pPlayer->m_xmOOBB))
 		m_pWallsObject->SetPosition(m_pPlayer->m_xmf3Position);
 }
 
-void CScene::CheckObjectByBulletCollisions()
+void CScene::CheckPlayerByObjectCollision()
 {
-	CBulletObject** ppBullets = ((CAirplanePlayer*)m_pPlayer)->m_ppBullets;
+	BoundingOrientedBox xmOOBBPlayerMoveCheck;
 
-	for (INT i = 0; i < m_nObjects; ++i)
-	{
-		for (INT j = 0; j < BULLETS; ++j)
-		{
-			if (ppBullets[j]->m_bActive && m_ppObjects[i]->m_xmOOBB.Intersects(ppBullets[j]->m_xmOOBB)) 
-			{
-				CExplosiveObject* pExplosiveObject = (CExplosiveObject*)m_ppObjects[i];
-
-				pExplosiveObject->m_bBlowingUp = TRUE;
-				ppBullets[j]->m_bActive = FALSE;
-			}
-		}
-	}
+	
 }
 
 void CScene::Animate(FLOAT fElapsedTime)
@@ -355,13 +310,13 @@ void CScene::Animate(FLOAT fElapsedTime)
 		m_ppObjects[i]->Animate(fElapsedTime);
 	}
 
+	CheckPlayerByObjectCollision();
 	CheckPlayerByWallCollision();
 	CheckObjectByWallCollisions();
 	CheckObjectByObjectCollisions();
-	CheckObjectByBulletCollisions();
 }
 
-void CScene::Render(HDC hDCFrameBuffer, CCamera *pCamera)
+void CScene::Render(HDC hDCFrameBuffer, CCamera* pCamera)
 {
 	m_pWallsObject->Render(hDCFrameBuffer, pCamera);
 
@@ -370,3 +325,4 @@ void CScene::Render(HDC hDCFrameBuffer, CCamera *pCamera)
 		m_ppObjects[i]->Render(hDCFrameBuffer, pCamera);
 	}
 }
+

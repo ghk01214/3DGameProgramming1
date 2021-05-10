@@ -8,28 +8,28 @@ class CScene
 public:
 	CScene();
 	virtual ~CScene();
-public:
+
+	CPlayer*					m_pPlayer = nullptr;
+
+	INT							m_nObjects = 0;
+	CGameObject**				m_ppObjects = nullptr;
+
+	CWallsObject*				m_pWallsObject = nullptr;
+
 	virtual void BuildObjects();
 	virtual void ReleaseObjects();
-public:
+
 	void CheckObjectByObjectCollisions();
 	void CheckObjectByWallCollisions();
 	void CheckPlayerByWallCollision();
-	void CheckObjectByBulletCollisions();
-public:
+	void CheckPlayerByObjectCollision();
+
 	virtual void Animate(FLOAT fElapsedTime);
-	virtual void Render(HDC hDCFrameBuffer, CCamera *pCamera);
-public:
+	virtual void Render(HDC hDCFrameBuffer, CCamera* pCamera);
+
 	virtual void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	virtual void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-public:
-	CGameObject *PickObjectPointedByCursor(INT xClient, INT yClient, CCamera *pCamera);
 
-public:
-	CPlayer*					m_pPlayer = nullptr;
-public:
-	INT							m_nObjects = 0;
-	CGameObject**				m_ppObjects = nullptr;
-public:
-	CWallsObject*				m_pWallsObject = nullptr;
+	CGameObject* PickObjectPointedByCursor(INT xClient, INT yClient, CCamera* pCamera);
 };
+
