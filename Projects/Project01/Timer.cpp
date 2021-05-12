@@ -78,23 +78,26 @@ ULONG CGameTimer::GetFrameRate(LPTSTR lpszString, INT nCharacters)
 		wcscat_s(lpszString, nCharacters, _T(" FPS)"));
 	}
 
-	return(m_nCurrentFrameRate);
+	return m_nCurrentFrameRate;
 }
 
 FLOAT CGameTimer::GetTimeElapsed()
 {
-	return(m_fTimeElapsed);
+	return m_fTimeElapsed;
 }
 
 FLOAT CGameTimer::GetTotalTime()
 {
-	if (m_bStopped) return(FLOAT(((m_nStopPerformanceCounter - m_nPausedPerformanceCounter) - m_nBasePerformanceCounter) * m_fTimeScale));
-	return(FLOAT(((m_nCurrentPerformanceCounter - m_nPausedPerformanceCounter) - m_nBasePerformanceCounter) * m_fTimeScale));
+	if (m_bStopped)
+		return FLOAT(((m_nStopPerformanceCounter - m_nPausedPerformanceCounter) - m_nBasePerformanceCounter) * m_fTimeScale);
+
+	return FLOAT(((m_nCurrentPerformanceCounter - m_nPausedPerformanceCounter) - m_nBasePerformanceCounter) * m_fTimeScale);
 }
 
 void CGameTimer::Reset()
 {
 	INT64 nPerformanceCounter;
+
 	::QueryPerformanceCounter((LARGE_INTEGER*)&nPerformanceCounter);
 
 	m_nBasePerformanceCounter = nPerformanceCounter;
@@ -106,7 +109,9 @@ void CGameTimer::Reset()
 void CGameTimer::Start()
 {
 	INT64 nPerformanceCounter;
+
 	::QueryPerformanceCounter((LARGE_INTEGER*)&nPerformanceCounter);
+
 	if (m_bStopped)
 	{
 		m_nPausedPerformanceCounter += (nPerformanceCounter - m_nStopPerformanceCounter);

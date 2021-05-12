@@ -24,7 +24,7 @@ private:
 	HINSTANCE					m_hInstance = nullptr;
 	HWND						m_hWnd = nullptr;
 
-    BOOL						m_bActive = TRUE;          
+    BOOL						m_bActive = FALSE;          
 
 	CGameTimer					m_GameTimer;
 

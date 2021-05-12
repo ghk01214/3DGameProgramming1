@@ -38,18 +38,20 @@ void CPlayer::SetCameraOffset(XMFLOAT3& xmf3CameraOffset)
 
 void CPlayer::Move(DWORD dwDirection, FLOAT fDistance)
 {
+	XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
+	
 	if (dwDirection)
 	{
-		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
-		if (dwDirection & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
-		if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
-		if (dwDirection & DIR_RIGHT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
-		if (dwDirection & DIR_LEFT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
-		if (dwDirection & DIR_UP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance);
-		if (dwDirection & DIR_DOWN) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
-
-		Move(xmf3Shift, TRUE);
+		if (dwDirection & DIR_RIGHT) 
+			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
+		
+		if (dwDirection & DIR_LEFT)
+			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
 	}
+	
+	xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
+
+	Move(xmf3Shift, TRUE);
 }
 
 void CPlayer::Move(XMFLOAT3& xmf3Shift, BOOL bUpdateVelocity)
@@ -128,10 +130,10 @@ void CPlayer::Animate(FLOAT fElapsedTime)
 
 void CPlayer::OnUpdateTransform()
 {
-	m_xmf4x4World._11 = m_xmf3Right.x; m_xmf4x4World._12 = m_xmf3Right.y; m_xmf4x4World._13 = m_xmf3Right.z;
-	m_xmf4x4World._21 = m_xmf3Up.x; m_xmf4x4World._22 = m_xmf3Up.y; m_xmf4x4World._23 = m_xmf3Up.z;
-	m_xmf4x4World._31 = m_xmf3Look.x; m_xmf4x4World._32 = m_xmf3Look.y; m_xmf4x4World._33 = m_xmf3Look.z;
-	m_xmf4x4World._41 = m_xmf3Position.x; m_xmf4x4World._42 = m_xmf3Position.y; m_xmf4x4World._43 = m_xmf3Position.z;
+	m_xmf4x4World._11 = m_xmf3Right.x;		m_xmf4x4World._12 = m_xmf3Right.y;		m_xmf4x4World._13 = m_xmf3Right.z;
+	m_xmf4x4World._21 = m_xmf3Up.x;			m_xmf4x4World._22 = m_xmf3Up.y;			m_xmf4x4World._23 = m_xmf3Up.z;
+	m_xmf4x4World._31 = m_xmf3Look.x;		m_xmf4x4World._32 = m_xmf3Look.y;		m_xmf4x4World._33 = m_xmf3Look.z;
+	m_xmf4x4World._41 = m_xmf3Position.x;	m_xmf4x4World._42 = m_xmf3Position.y;	m_xmf4x4World._43 = m_xmf3Position.z;
 }
 
 void CPlayer::Render(HDC hDCFrameBuffer, CCamera* pCamera)
@@ -149,8 +151,38 @@ CCarPlayer::~CCarPlayer()
 {
 }
 
+void CCarPlayer::Jump()
+{
+	if ((12.0f < m_xmf3Position.y))
+		m_iJumpState = 1;
+
+	switch (m_iJumpState)
+	{
+	case 0:
+	{
+		m_xmf3Position.y += 0.3f;
+		break;
+	}
+	case 1:
+	{
+		m_xmf3Position.y -= 0.3f;
+		break;
+	}
+	}
+
+	if (m_xmf3Position.y < 0.0f)
+	{
+		m_xmf3Position.y == 0.0f;
+		m_bJump = FALSE;
+		m_iJumpState = 0;
+	}
+}
+
 void CCarPlayer::Animate(FLOAT fElapsedTime)
 {
+	if (m_bJump)
+		Jump();
+
 	CPlayer::Animate(fElapsedTime);
 }
 

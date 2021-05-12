@@ -61,31 +61,6 @@ void CGameFramework::PresentFrameBuffer()
 
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	switch (nMessageID)
-	{
-	case WM_RBUTTONDOWN:
-	{
-		m_pSelectedObject = m_pScene->PickObjectPointedByCursor(LOWORD(lParam), HIWORD(lParam), m_pPlayer->m_pCamera);
-
-		break;
-	}
-	case WM_LBUTTONDOWN:
-	{
-		::SetCapture(hWnd);
-		::GetCursorPos(&m_ptOldCursorPos);
-	
-		break;
-	}
-	case WM_LBUTTONUP: case WM_RBUTTONUP:
-	{
-		::ReleaseCapture();
-		break;
-	}
-	case WM_MOUSEMOVE:
-		break;
-	default:
-		break;
-	}
 }
 
 void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -99,6 +74,12 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_ESCAPE:
 		{
 			::PostQuitMessage(0);
+
+			break;
+		}
+		case VK_CONTROL:
+		{
+			((CCarPlayer*)m_pPlayer)->m_bJump = TRUE;
 
 			break;
 		}
@@ -132,14 +113,6 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 
 		break;
 	}
-	case WM_LBUTTONDOWN: case WM_LBUTTONUP:
-	case WM_RBUTTONDOWN: case WM_RBUTTONUP:
-	case WM_MOUSEMOVE:
-	{
-		OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
-
-		break;
-	}
 	case WM_KEYDOWN: case WM_KEYUP:
 	{
 		OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
@@ -159,8 +132,8 @@ void CGameFramework::BuildObjects()
 	m_pPlayer = new CCarPlayer();
 	m_pPlayer->SetPosition(0.0f, 0.0f, 0.0f);
 	m_pPlayer->SetMesh(pCarMesh);
-	m_pPlayer->SetColor(RGB(0, 0, 255));
-	m_pPlayer->SetCameraOffset(XMFLOAT3(0.0f, 15.0f, -15.0f));
+	m_pPlayer->SetColor(RGB(107, 153, 0));
+	m_pPlayer->SetCameraOffset(XMFLOAT3(0.0f, 20.0f, -20.0f));
 
 	m_pScene = new CScene();
 	m_pScene->BuildObjects();
@@ -202,52 +175,14 @@ void CGameFramework::ProcessInput()
 
 	if (GetKeyboardState(pKeyBuffer))
 	{
-		if (pKeyBuffer[VK_UP] & 0xF0)
-			dwDirection |= DIR_FORWARD;
-
-		if (pKeyBuffer[VK_DOWN] & 0xF0)
-			dwDirection |= DIR_BACKWARD;
-
 		if (pKeyBuffer[VK_LEFT] & 0xF0)
 			dwDirection |= DIR_LEFT;
 
 		if (pKeyBuffer[VK_RIGHT] & 0xF0)
 			dwDirection |= DIR_RIGHT;
-
-		if (pKeyBuffer[VK_PRIOR] & 0xF0)
-			dwDirection |= DIR_UP;
-
-		if (pKeyBuffer[VK_NEXT] & 0xF0)
-			dwDirection |= DIR_DOWN;
 	}
 
-	FLOAT cxDelta = 0.0f, cyDelta = 0.0f;
-	POINT ptCursorPos;
-
-	if (GetCapture() == m_hWnd)
-	{
-		SetCursor(nullptr);
-		GetCursorPos(&ptCursorPos);
-
-		cxDelta = (FLOAT)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
-		cyDelta = (FLOAT)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
-
-		SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
-	}
-
-	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
-	{
-		if (cxDelta || cyDelta)
-		{
-			if (pKeyBuffer[VK_RBUTTON] & 0xF0)
-				m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
-			else
-				m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
-		}
-		if (dwDirection)
-			m_pPlayer->Move(dwDirection, 0.5f);
-	}
-
+	m_pPlayer->Move(dwDirection, 0.5f);
 	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
 }
 
@@ -274,6 +209,15 @@ void CGameFramework::FrameAdvance()
 
 	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
+
+	if (m_pScene->m_bGameOver)
+	{
+		ReleaseObjects();
+		BuildObjects();
+
+		auto time = std::chrono::high_resolution_clock::now();
+		while (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - time).count() < 3);
+
+		m_pScene->m_bGameOver = FALSE;
+	}
 }
-
-

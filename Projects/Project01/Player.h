@@ -21,6 +21,9 @@ public:
 	FLOAT           			m_fYaw = 0.0f;
 	FLOAT           			m_fRoll = 0.0f;
 
+	INT							m_iFeverStack = 0;
+	BOOL						m_bFeverMode = FALSE;
+
 	CCamera*					m_pCamera = nullptr;
 
 	void SetPosition(FLOAT x, FLOAT y, FLOAT z);
@@ -46,7 +49,13 @@ public:
 	CCarPlayer();
 	virtual ~CCarPlayer();
 
+	void Jump();
+
 	virtual void OnUpdateTransform();
 	virtual void Animate(FLOAT fElapsedTime);
 	virtual void Render(HDC hDCFrameBuffer, CCamera* pCamera);
+
+public:
+	BOOL						m_bJump = FALSE;
+	INT							m_iJumpState = 0;
 };

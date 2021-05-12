@@ -18,6 +18,9 @@
 #include <tchar.h>
 #include <math.h>
 
+#include <random>
+#include <chrono>
+
 #include <d3d12.h>
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
@@ -46,6 +49,13 @@ using namespace DirectX::PackedVector;
 //#define _WITH_VECTOR_OPERATION
 
 #define EPSILON					1.0e-6f
+
+struct Point
+{
+	FLOAT x;
+	FLOAT y;
+	FLOAT z;
+};
 
 inline BOOL IsZero(FLOAT fValue)
 {

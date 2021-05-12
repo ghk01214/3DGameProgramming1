@@ -1,6 +1,12 @@
 #include "stdafx.h"
 #include "Scene.h"
 
+std::random_device rd;
+std::default_random_engine dre(rd());
+std::uniform_int_distribution<> randomPositionX(-4, 4);
+std::uniform_real_distribution<> randomPositionZ(50.f, 240.f);
+std::uniform_real_distribution<> randomSpeed(20.0f, 30.0f);
+
 CScene::CScene()
 {
 }
@@ -15,54 +21,13 @@ void CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 
 void CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	switch (nMessageID)
-	{
-	case WM_KEYDOWN:
-	{
-		switch (wParam)
-		{
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-		case '9':
-		{
-			CEnemyObject* pEnemyObject = (CEnemyObject*)m_ppObjects[INT(wParam - '1')];
-			pEnemyObject->m_bBlowingUp = TRUE;
-		
-			break;
-		}
-		case 'A':
-		{
-			for (INT i = 0; i < m_nObjects; ++i)
-			{
-				CEnemyObject* pEnemyObject = (CEnemyObject*)m_ppObjects[i];
-
-				pEnemyObject->m_bBlowingUp = TRUE;
-			}
-
-			break;
-		}
-		default:
-			break;
-		}
-	
-		break;
-	}
-	default:
-		break;
-	}
 }
 
 void CScene::BuildObjects()
 {
 	CEnemyObject::PrepareExplosion();
 
-	FLOAT fHalfWidth = 45.0f, fHalfHeight = 45.0f, fHalfDepth = 30.0f;
+	FLOAT fHalfWidth = 45.0f, fHalfHeight = 45.0f, fHalfDepth = 240.0f;
 	CWallMesh* pWallCubeMesh = new CWallMesh(fHalfWidth * 2.0f, fHalfHeight * 2.0f, fHalfDepth * 2.0f, 30);
 
 	m_pWallsObject = new CWallsObject();
@@ -77,59 +42,60 @@ void CScene::BuildObjects()
 	m_pWallsObject->m_pxmf4WallPlanes[5] = XMFLOAT4(0.0f, 0.0f, -1.0f, fHalfDepth);
 	m_pWallsObject->m_xmOOBBPlayerMoveCheck = BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(fHalfWidth, fHalfHeight, fHalfDepth * 0.05f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 
-	CEnemyMesh* pEnemyCarMesh = new CEnemyMesh(4.0f, 4.0f, 4.0f);
+	CEnemyMesh* pEnemyCarMesh = new CEnemyMesh(6.0f, 6.0f, 6.0f);
+	Point pStartPoint;
+	DWORD dwStartColor;
 
-	m_nObjects = 10;
+	m_nObjects = 18;
 	m_ppObjects = new CGameObject * [m_nObjects];
 
-	for (int i = 0; i < 10; ++i)
+	INT j = -4;
+
+	for (int i = 0; i < m_nObjects; ++i)
 	{
+		if (abs(randomPositionX(dre)) % 3 == 0)
+			dwStartColor = RGB(0, 0, 255);
+		else
+			dwStartColor = RGB(0, 0, 0);
+
 		m_ppObjects[i] = new CEnemyObject();
 		m_ppObjects[i]->SetMesh(pEnemyCarMesh);
 		m_ppObjects[i]->SetRotationSpeed(0.0f);
 		m_ppObjects[i]->SetMovingDirection(XMFLOAT3(0.0f, 0.0f, -1.0f));
 		m_ppObjects[i]->SetRotationAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_ppObjects[i]->SetColor(dwStartColor);
+		m_ppObjects[i]->SetMovingSpeed(randomSpeed(dre));
+
+		pStartPoint = { j++ * 10.0f, 0.0f, (FLOAT)randomPositionZ(dre) };
+		m_ppObjects[i]->SetPosition(pStartPoint.x, pStartPoint.y, pStartPoint.z);
+
+		if (j == 5)
+			j = -4;
 	}
+}
 
-	m_ppObjects[0]->SetColor(RGB(255, 0, 0));
-	m_ppObjects[0]->SetPosition(-13.5f, 0.0f, -14.0f);
-	m_ppObjects[0]->SetMovingSpeed(10.5f);
+// 월드에서 사라진 오브젝트 리스폰
+void CScene::RespawnEnemyObjects()
+{
+	CEnemyMesh* pEnemyCarMesh = new CEnemyMesh(6.0f, 6.0f, 6.0f);
+	Point pRespawnPoint = { randomPositionX(dre) * 10.0f, 0.0f, m_pPlayer->m_xmf3Position.z + (FLOAT)randomPositionZ(dre) };
+	DWORD randomColor;
 
-	m_ppObjects[1]->SetColor(RGB(0, 0, 255));
-	m_ppObjects[1]->SetPosition(+13.5f, 0.0f, -14.0f);
-	m_ppObjects[1]->SetMovingSpeed(8.8f);
+	if ((randomPositionX(dre) > 0) && (randomPositionX(dre) % 3 == 0))
+		randomColor = RGB(0, 0, 255);
+	else
+		randomColor = RGB(0, 0, 0);
 
-	m_ppObjects[2]->SetColor(RGB(0, 255, 0));
-	m_ppObjects[2]->SetPosition(0.0f, 0.0f, 20.0f);
-	m_ppObjects[2]->SetMovingSpeed(5.2f);
+	++m_nObjects;
 
-	m_ppObjects[3]->SetColor(RGB(0, 255, 255));
-	m_ppObjects[3]->SetPosition(0.0f, 0.0f, 0.0f);
-	m_ppObjects[3]->SetMovingSpeed(20.4f);
-
-	m_ppObjects[4]->SetColor(RGB(128, 0, 255));
-	m_ppObjects[4]->SetPosition(10.0f, 0.0f, 0.0f);
-	m_ppObjects[4]->SetMovingSpeed(6.4f);
-
-	m_ppObjects[5]->SetColor(RGB(255, 0, 255));
-	m_ppObjects[5]->SetPosition(-10.0f, 0.0f, -10.0f);
-	m_ppObjects[5]->SetMovingSpeed(8.9f);
-
-	m_ppObjects[6]->SetColor(RGB(255, 0, 255));
-	m_ppObjects[6]->SetPosition(-10.0f, 0.0f, -10.0f);
-	m_ppObjects[6]->SetMovingSpeed(9.7f);
-
-	m_ppObjects[7]->SetColor(RGB(255, 0, 128));
-	m_ppObjects[7]->SetPosition(-10.0f, 0.0f, -20.0f);
-	m_ppObjects[7]->SetMovingSpeed(15.6f);
-
-	m_ppObjects[8]->SetColor(RGB(128, 0, 255));
-	m_ppObjects[8]->SetPosition(-15.0f, 0.0f, -30.0f);
-	m_ppObjects[8]->SetMovingSpeed(15.0f);
-
-	m_ppObjects[9]->SetColor(RGB(255, 64, 64));
-	m_ppObjects[9]->SetPosition(+15.0f, 0.0f, 0.0f);
-	m_ppObjects[9]->SetMovingSpeed(15.0f);
+	m_ppObjects[m_nObjects - 1] = new CEnemyObject();
+	m_ppObjects[m_nObjects - 1]->SetMesh(pEnemyCarMesh);
+	m_ppObjects[m_nObjects - 1]->SetRotationSpeed(0.0f);
+	m_ppObjects[m_nObjects - 1]->SetMovingDirection(XMFLOAT3(0.0f, 0.0f, -1.0f));
+	m_ppObjects[m_nObjects - 1]->SetRotationAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
+	m_ppObjects[m_nObjects - 1]->SetColor(randomColor);
+	m_ppObjects[m_nObjects - 1]->SetPosition(pRespawnPoint.x, pRespawnPoint.y, pRespawnPoint.z);
+	m_ppObjects[m_nObjects - 1]->SetMovingSpeed(randomSpeed(dre));
 }
 
 void CScene::ReleaseObjects()
@@ -150,34 +116,18 @@ void CScene::ReleaseObjects()
 		delete m_pWallsObject;
 }
 
-CGameObject* CScene::PickObjectPointedByCursor(INT xClient, INT yClient, CCamera* pCamera)
+// 특정 오브젝트 소멸
+void CScene::ReleaseEnemyObjects(INT iObjectNum)
 {
-	XMFLOAT3 xmf3PickPosition;
-	xmf3PickPosition.x = (((2.0f * xClient) / pCamera->m_d3dViewport.Width) - 1) / pCamera->m_xmf4x4Projection._11;
-	xmf3PickPosition.y = -(((2.0f * yClient) / pCamera->m_d3dViewport.Height) - 1) / pCamera->m_xmf4x4Projection._22;
-	xmf3PickPosition.z = 1.0f;
-
-	XMVECTOR xmvPickPosition = XMLoadFloat3(&xmf3PickPosition);
-	XMMATRIX xmmtxView = XMLoadFloat4x4(&pCamera->m_xmf4x4View);
-
-	INT nIntersected = 0;
-	FLOAT fNearestHitDistance = FLT_MAX;
-	CGameObject* pNearestObject = nullptr;
-
-	for (INT i = 0; i < m_nObjects; ++i)
+	if (m_ppObjects[iObjectNum])
 	{
-		FLOAT fHitDistance = FLT_MAX;
-
-		nIntersected = m_ppObjects[i]->PickObjectByRayIntersection(xmvPickPosition, xmmtxView, &fHitDistance);
-
-		if ((nIntersected > 0) && (fHitDistance < fNearestHitDistance))
+		for (int i = iObjectNum; i < m_nObjects - 1; ++i)
 		{
-			fNearestHitDistance = fHitDistance;
-			pNearestObject = m_ppObjects[i];
+			m_ppObjects[i] = m_ppObjects[i + 1];
 		}
-	}
 
-	return pNearestObject;
+		--m_nObjects;
+	}
 }
 
 void CScene::CheckObjectByObjectCollisions()
@@ -240,12 +190,11 @@ void CScene::CheckObjectByWallCollisions()
 				}
 			}
 
+			// 플레이어의 뒷 벽의 뒤에 있으면 해당 오브젝트를 삭제하고 새로운 위치에 오브젝트 리스폰
 			if (nPlaneIndex != -1)
 			{
-				XMVECTOR xmvNormal = XMVectorSet(m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].x, m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].y, m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].z, 0.0f);
-				XMVECTOR xmvReflect = XMVector3Reflect(XMLoadFloat3(&m_ppObjects[i]->m_xmf3MovingDirection), xmvNormal);
-				
-				XMStoreFloat3(&m_ppObjects[i]->m_xmf3MovingDirection, xmvReflect);
+				ReleaseEnemyObjects(i);
+				RespawnEnemyObjects();
 			}
 
 			break;
@@ -253,25 +202,24 @@ void CScene::CheckObjectByWallCollisions()
 		case INTERSECTS:
 		{
 			INT nPlaneIndex = -1;
-			
+
 			for (INT j = 0; j < 6; ++j)
 			{
 				PlaneIntersectionType intersectType = m_ppObjects[i]->m_xmOOBB.Intersects(XMLoadFloat4(&m_pWallsObject->m_pxmf4WallPlanes[j]));
-				
+
 				if (intersectType == INTERSECTING)
 				{
 					nPlaneIndex = j;
-					
+
 					break;
 				}
 			}
 
+			// 플레이어의 뒷 벽이랑 교차하고 있으면 해당 오브젝트를 삭제하고 새로운 위치에 오브젝트 리스폰
 			if (nPlaneIndex != -1)
 			{
-				XMVECTOR xmvNormal = XMVectorSet(m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].x, m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].y, m_pWallsObject->m_pxmf4WallPlanes[nPlaneIndex].z, 0.0f);
-				XMVECTOR xmvReflect = XMVector3Reflect(XMLoadFloat3(&m_ppObjects[i]->m_xmf3MovingDirection), xmvNormal);
-				
-				XMStoreFloat3(&m_ppObjects[i]->m_xmf3MovingDirection, xmvReflect);
+				ReleaseEnemyObjects(i);
+				RespawnEnemyObjects();
 			}
 
 			break;
@@ -285,20 +233,96 @@ void CScene::CheckObjectByWallCollisions()
 void CScene::CheckPlayerByWallCollision()
 {
 	BoundingOrientedBox xmOOBBPlayerMoveCheck;
-	
+
 	m_pWallsObject->m_xmOOBBPlayerMoveCheck.Transform(xmOOBBPlayerMoveCheck, XMLoadFloat4x4(&m_pWallsObject->m_xmf4x4World));
-	
+
 	XMStoreFloat4(&xmOOBBPlayerMoveCheck.Orientation, XMQuaternionNormalize(XMLoadFloat4(&xmOOBBPlayerMoveCheck.Orientation)));
 
 	if (!xmOOBBPlayerMoveCheck.Intersects(m_pPlayer->m_xmOOBB))
+	{
+		FLOAT xPos;
+
+		if (m_pPlayer->m_xmf3Position.x > 45.0f)
+			xPos = 40.0f;
+		else if (m_pPlayer->m_xmf3Position.x < -45.0f)
+			xPos = -40.0f;
+		else if (m_pPlayer->m_xmf3Position.z > 240.0f * 0.05f)
+			xPos = m_pPlayer->m_xmf3Position.x;
+
+		m_pPlayer->m_xmf3Position.x = 0.0f;
 		m_pWallsObject->SetPosition(m_pPlayer->m_xmf3Position);
+
+		m_pPlayer->SetPosition(xPos, m_pPlayer->m_xmf3Position.y, m_pPlayer->m_xmf3Position.z);
+		m_pPlayer->m_xmf3Position.x = xPos;
+	}
 }
 
 void CScene::CheckPlayerByObjectCollision()
 {
-	BoundingOrientedBox xmOOBBPlayerMoveCheck;
+	m_pPlayer->m_pObjectCollided = nullptr;
 
-	
+	for (INT i = 0; i < m_nObjects; ++i)
+	{
+		if (m_pPlayer->m_xmOOBB.Intersects(m_ppObjects[i]->m_xmOOBB))
+		{
+			m_ppObjects[i]->m_pObjectCollided = m_pPlayer;
+			m_pPlayer->m_pObjectCollided = m_ppObjects[i];
+
+			break;
+		}
+	}
+
+	if (m_pPlayer->m_pObjectCollided)
+	{
+		static std::chrono::high_resolution_clock::time_point startTime;
+
+		if (m_pPlayer->m_bFeverMode)
+		{
+			CEnemyObject* pEnemyObject = (CEnemyObject*)m_pPlayer->m_pObjectCollided;
+
+			pEnemyObject->m_bBlowingUp = TRUE;
+
+			if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - startTime).count() > 10)
+			{
+				m_pPlayer->m_bFeverMode = FALSE;
+				m_pPlayer->m_dwColor = RGB(0, 0, 0);
+			}
+		}
+		else
+		{
+			if (m_pPlayer->m_pObjectCollided->m_dwColor == RGB(0, 0, 255))
+			{
+				++m_pPlayer->m_iFeverStack;
+
+				CEnemyObject* pEnemyObject = (CEnemyObject*)m_pPlayer->m_pObjectCollided;
+
+				pEnemyObject->m_bBlowingUp = TRUE;
+
+				if (m_pPlayer->m_iFeverStack == 200)
+				{
+					startTime = std::chrono::high_resolution_clock::now();
+
+					m_pPlayer->m_bFeverMode = TRUE;
+					m_pPlayer->m_iFeverStack = 0;
+					m_pPlayer->m_dwColor = RGB(255, 0, 0);
+				}
+			}
+			else
+				m_bGameOver = TRUE;
+		}
+	}
+}
+
+void CScene::CheckObjectOutOfCamera()
+{
+	for (INT i = 0; i < m_nObjects; ++i)
+	{
+		if (m_ppObjects[i]->m_xmf4x4World._43 < m_pPlayer->m_xmf3Position.z - 30.0f)
+		{
+			ReleaseEnemyObjects(i);
+			RespawnEnemyObjects();
+		}
+	}
 }
 
 void CScene::Animate(FLOAT fElapsedTime)
@@ -314,6 +338,7 @@ void CScene::Animate(FLOAT fElapsedTime)
 	CheckPlayerByWallCollision();
 	CheckObjectByWallCollisions();
 	CheckObjectByObjectCollisions();
+	CheckObjectOutOfCamera();
 }
 
 void CScene::Render(HDC hDCFrameBuffer, CCamera* pCamera)
