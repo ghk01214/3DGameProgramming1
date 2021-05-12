@@ -44,18 +44,11 @@ using namespace DirectX::PackedVector;
 
 #define RANDOM_COLOR			(0xFF000000 | ((rand() * 0xFFFFFF) / RAND_MAX))
 
-#define EXPLOSION_DEBRISES		10
+#define EXPLOSION_DEBRISES		20
 
 //#define _WITH_VECTOR_OPERATION
 
 #define EPSILON					1.0e-6f
-
-struct Point
-{
-	FLOAT x;
-	FLOAT y;
-	FLOAT z;
-};
 
 inline BOOL IsZero(FLOAT fValue)
 {

@@ -35,8 +35,8 @@ private:
     FLOAT							m_fFrameTime[MAX_SAMPLE_COUNT];
     ULONG							m_nSampleCount;
 
-    ULONG					m_nCurrentFrameRate;				
-	ULONG					m_FramePerSecond;					
+    ULONG							m_nCurrentFrameRate;				
+	ULONG							m_FramePerSecond;					
 	FLOAT							m_fFPSTimeElapsed;		
 
 	BOOL							m_bStopped;

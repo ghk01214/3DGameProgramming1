@@ -43,7 +43,6 @@ void CScene::BuildObjects()
 	m_pWallsObject->m_xmOOBBPlayerMoveCheck = BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(fHalfWidth, fHalfHeight, fHalfDepth * 0.05f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 
 	CEnemyMesh* pEnemyCarMesh = new CEnemyMesh(6.0f, 6.0f, 6.0f);
-	Point pStartPoint;
 	DWORD dwStartColor;
 
 	m_nObjects = 18;
@@ -66,8 +65,7 @@ void CScene::BuildObjects()
 		m_ppObjects[i]->SetColor(dwStartColor);
 		m_ppObjects[i]->SetMovingSpeed(randomSpeed(dre));
 
-		pStartPoint = { j++ * 10.0f, 0.0f, (FLOAT)randomPositionZ(dre) };
-		m_ppObjects[i]->SetPosition(pStartPoint.x, pStartPoint.y, pStartPoint.z);
+		m_ppObjects[i]->SetPosition(j++ * 10.0f, 0.0f, (FLOAT)randomPositionZ(dre));
 
 		if (j == 5)
 			j = -4;
@@ -78,7 +76,6 @@ void CScene::BuildObjects()
 void CScene::RespawnEnemyObjects()
 {
 	CEnemyMesh* pEnemyCarMesh = new CEnemyMesh(6.0f, 6.0f, 6.0f);
-	Point pRespawnPoint = { randomPositionX(dre) * 10.0f, 0.0f, m_pPlayer->m_xmf3Position.z + (FLOAT)randomPositionZ(dre) };
 	DWORD randomColor;
 
 	if ((randomPositionX(dre) > 0) && (randomPositionX(dre) % 3 == 0))
@@ -94,7 +91,7 @@ void CScene::RespawnEnemyObjects()
 	m_ppObjects[m_nObjects - 1]->SetMovingDirection(XMFLOAT3(0.0f, 0.0f, -1.0f));
 	m_ppObjects[m_nObjects - 1]->SetRotationAxis(XMFLOAT3(0.0f, 0.0f, 0.0f));
 	m_ppObjects[m_nObjects - 1]->SetColor(randomColor);
-	m_ppObjects[m_nObjects - 1]->SetPosition(pRespawnPoint.x, pRespawnPoint.y, pRespawnPoint.z);
+	m_ppObjects[m_nObjects - 1]->SetPosition(randomPositionX(dre) * 10.0f, 0.0f, m_pPlayer->m_xmf3Position.z + (FLOAT)randomPositionZ(dre));
 	m_ppObjects[m_nObjects - 1]->SetMovingSpeed(randomSpeed(dre));
 }
 
@@ -260,14 +257,14 @@ void CScene::CheckPlayerByWallCollision()
 void CScene::CheckPlayerByObjectCollision()
 {
 	m_pPlayer->m_pObjectCollided = nullptr;
-
+	
 	for (INT i = 0; i < m_nObjects; ++i)
 	{
 		if (m_pPlayer->m_xmOOBB.Intersects(m_ppObjects[i]->m_xmOOBB))
 		{
 			m_ppObjects[i]->m_pObjectCollided = m_pPlayer;
 			m_pPlayer->m_pObjectCollided = m_ppObjects[i];
-
+			
 			break;
 		}
 	}
@@ -285,6 +282,7 @@ void CScene::CheckPlayerByObjectCollision()
 			if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - startTime).count() > 10)
 			{
 				m_pPlayer->m_bFeverMode = FALSE;
+				m_pPlayer->m_iFeverStack = 0;
 				m_pPlayer->m_dwColor = RGB(0, 0, 0);
 			}
 		}
@@ -303,7 +301,6 @@ void CScene::CheckPlayerByObjectCollision()
 					startTime = std::chrono::high_resolution_clock::now();
 
 					m_pPlayer->m_bFeverMode = TRUE;
-					m_pPlayer->m_iFeverStack = 0;
 					m_pPlayer->m_dwColor = RGB(255, 0, 0);
 				}
 			}
