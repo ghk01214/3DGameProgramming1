@@ -80,13 +80,9 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="VertexShader.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="PixelShader.hlsl">
       <Filter>Shader</Filter>
     </None>
+    <None Include="VertexShader.hlsl" />
   </ItemGroup>
 </Project>
