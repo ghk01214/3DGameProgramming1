@@ -14,16 +14,16 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="Class">
-      <UniqueIdentifier>{6b2cd857-63b3-4d45-b9d7-c982e127e5b6}</UniqueIdentifier>
+      <UniqueIdentifier>{bbab2c0d-eedf-403b-a38b-7998b7c62646}</UniqueIdentifier>
     </Filter>
     <Filter Include="Class\cpp">
-      <UniqueIdentifier>{e6cd856d-c5e2-4340-ae63-a194225bb406}</UniqueIdentifier>
+      <UniqueIdentifier>{8d471b31-db42-4d8c-9a34-e76ea291b0df}</UniqueIdentifier>
     </Filter>
     <Filter Include="Class\h">
-      <UniqueIdentifier>{27a7db3c-8308-4aa4-80bd-fac6580287d3}</UniqueIdentifier>
+      <UniqueIdentifier>{c0bc10f1-28cb-48e0-aded-d515de824346}</UniqueIdentifier>
     </Filter>
     <Filter Include="Shader">
-      <UniqueIdentifier>{a8b7c7e1-031e-4005-a02d-7d7f26b2ff9f}</UniqueIdentifier>
+      <UniqueIdentifier>{7f824874-9da3-4c1a-8c71-fe61d115a7a4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -36,7 +36,7 @@
     <ClInclude Include="Resource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="LabProject08.h">
+    <ClInclude Include="LabProject09.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
@@ -62,10 +62,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LabProject08.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="framework.cpp">
+    <ClCompile Include="LabProject09.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
@@ -89,9 +86,12 @@
     <ClCompile Include="Timer.cpp">
       <Filter>Class\cpp</Filter>
     </ClCompile>
+    <ClCompile Include="framework.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="LabProject08.rc">
+    <ResourceCompile Include="LabProject09.rc">
       <Filter>리소스 파일</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -99,15 +99,17 @@
     <Image Include="small.ico">
       <Filter>리소스 파일</Filter>
     </Image>
-    <Image Include="LabProject08.ico">
+    <Image Include="LabProject09.ico">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="PixelShader.hlsl">
+    <FxCompile Include="VertexShader.hlsl">
       <Filter>Shader</Filter>
-    </None>
-    <None Include="VertexShader.hlsl">
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="PixelShader.hlsl">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
