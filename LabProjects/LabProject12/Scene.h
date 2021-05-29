@@ -30,7 +30,7 @@ public:
 private:
 	ID3D12PipelineState*	 m_pd3dPipelineState{ nullptr };										// Graphics Pipeline 상태를 나타내는 Interface 포인터
 protected:
-	CObjectsShader*			 m_pShaders{ nullptr };
+	CInstancingShader*		 m_pShaders{ nullptr };
 	INT						 m_nShaders{ 0 };
 protected:
 	ID3D12RootSignature*	 m_pd3dGraphicsRootSignature{ nullptr };								// Root Signature를 나타내는 Interface 포인터
