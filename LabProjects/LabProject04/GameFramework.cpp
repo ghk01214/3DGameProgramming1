@@ -340,8 +340,8 @@ void CGameFramework::ChangeSwapChainState()
 
 	BOOL bFullScreenState{ FALSE };
 
-	m_pdxgiSwapChain->GetFullscreenState(&bFullScreenState, NULL);
-	m_pdxgiSwapChain->SetFullscreenState(!bFullScreenState, NULL);
+	m_pdxgiSwapChain->GetFullscreenState(&bFullScreenState, nullptr);
+	m_pdxgiSwapChain->SetFullscreenState(!bFullScreenState, nullptr);
 
 	DXGI_MODE_DESC dxgiTargetParameters;
 
