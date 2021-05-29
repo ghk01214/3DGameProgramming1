@@ -14,16 +14,16 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="Class">
-      <UniqueIdentifier>{0a1788d1-ea6e-41e4-9fe3-551eae789809}</UniqueIdentifier>
+      <UniqueIdentifier>{776fa7f5-5587-4cbf-8f97-0b721a33a052}</UniqueIdentifier>
     </Filter>
     <Filter Include="Shader">
-      <UniqueIdentifier>{5e1c0f94-9e96-4cd2-997c-2701ba821ca4}</UniqueIdentifier>
+      <UniqueIdentifier>{2fe9687a-275c-4c74-8100-950a14457435}</UniqueIdentifier>
     </Filter>
     <Filter Include="Class\cpp">
-      <UniqueIdentifier>{b2e7ec9a-7a36-4381-9e82-1e6add28f15b}</UniqueIdentifier>
+      <UniqueIdentifier>{cfabae96-417b-4a10-a926-2e6c3ba701e7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Class\h">
-      <UniqueIdentifier>{e7bd0c54-0244-468d-9bff-a968f3cbfc1d}</UniqueIdentifier>
+      <UniqueIdentifier>{b3f5a79c-c6aa-4b88-afdb-a780466faf46}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -36,7 +36,7 @@
     <ClInclude Include="Resource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="LabProject11.h">
+    <ClInclude Include="LabProject12.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
@@ -51,6 +51,9 @@
     <ClInclude Include="Mesh.h">
       <Filter>Class\h</Filter>
     </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Class\h</Filter>
+    </ClInclude>
     <ClInclude Include="Scene.h">
       <Filter>Class\h</Filter>
     </ClInclude>
@@ -60,15 +63,9 @@
     <ClInclude Include="Timer.h">
       <Filter>Class\h</Filter>
     </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>Class\h</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LabProject11.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="framework.cpp">
+    <ClCompile Include="LabProject12.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
@@ -83,6 +80,9 @@
     <ClCompile Include="Mesh.cpp">
       <Filter>Class\cpp</Filter>
     </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Class\cpp</Filter>
+    </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>Class\cpp</Filter>
     </ClCompile>
@@ -92,12 +92,12 @@
     <ClCompile Include="Timer.cpp">
       <Filter>Class\cpp</Filter>
     </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>Class\cpp</Filter>
+    <ClCompile Include="framework.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="LabProject11.rc">
+    <ResourceCompile Include="LabProject12.rc">
       <Filter>리소스 파일</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -105,15 +105,17 @@
     <Image Include="small.ico">
       <Filter>리소스 파일</Filter>
     </Image>
-    <Image Include="LabProject11.ico">
+    <Image Include="LabProject12.ico">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="VertexShader.hlsl">
+    <FxCompile Include="PixelShader.hlsl">
       <Filter>Shader</Filter>
-    </None>
-    <None Include="PixelShader.hlsl">
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="VertexShader.hlsl">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
