@@ -468,7 +468,7 @@ void CInstancingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 void CInstancingShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
-	CObjectsShader::Render(pd3dCommandList, pCamera);
+	CShader::Render(pd3dCommandList, pCamera);
 
 	// 모든 Game Object의 Instancing 데이터를 버퍼에 저장
 	UpdateShaderVariables(pd3dCommandList);
