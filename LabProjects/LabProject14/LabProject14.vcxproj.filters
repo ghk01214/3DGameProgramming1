@@ -113,16 +113,14 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="VertexShader.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="PixelShader.hlsl">
       <Filter>Shader</Filter>
     </None>
     <None Include="HeightMap.raw">
       <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="VertexShader.hlsl">
+      <Filter>Shader</Filter>
     </None>
   </ItemGroup>
 </Project>
