@@ -61,7 +61,7 @@ public:
 	void LookTo(XMFLOAT3& xmf3LookTo, XMFLOAT3& xmf3Up);
 	void LookAt(XMFLOAT3& xmf3LookAt, XMFLOAT3& xmf3Up);
 
-	void CGameObject::UpdateBoundingBox();
+	void UpdateBoundingBox();
 
 	virtual void OnUpdateTransform() { }
 	virtual void Animate(FLOAT fElapsedTime);

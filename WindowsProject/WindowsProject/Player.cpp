@@ -140,6 +140,8 @@ void CPlayer::Update(FLOAT fTimeElapsed)
 		fDeceleration = fLength;
 
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, TRUE));
+
+	m_pPlayer = this;
 }
 
 /*카메라를 변경할 때 ChangeCamera() 함수에서 호출되는 함수
@@ -163,6 +165,11 @@ CCamera* CPlayer::OnChangeCamera(DWORD dwNewCameraMode, DWORD dwCurrentCameraMod
 	return pNewCamera;
 }
 
+void CPlayer::Animate(FLOAT fTimeElapsed)
+{
+	Update(fTimeElapsed);
+}
+
 /*플레이어의 위치와 회전축으로부터 월드 변환 행렬을 생성하는 함수.
 플레이어의 Right 벡터가 월드 변환 행렬의 첫 번째 행 벡터, Up 벡터가 두 번째 행 벡터,
 Look 벡터가 세 번째 행 벡터, 플레이어의 위치 벡터가 네 번째 행벡터가 된다.*/
@@ -177,47 +184,41 @@ void CPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamer
 {
 	DWORD dwCameraMode{ (pCamera) ? pCamera->GetMode() : 0x00 };
 
-	// 카메라 모드가 3인칭이면 플레이어 객체를 렌더링
-	if (dwCameraMode == THIRD_PERSON_CAMERA)
-	{
-		if (m_pShader)
-			m_pShader->Render(pd3dCommandList, pCamera);
+	if (m_pShader)
+		m_pShader->Render(pd3dCommandList, pCamera);
 
-		CGameObject::Render(pd3dCommandList, pCamera);
-	}
+	CGameObject::Render(pd3dCommandList, pCamera);
 }
 
 //=====================================================================================================================================================
 
-CCarPlayer::CCarPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+CCarPlayer::CCarPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : m_bJump(FALSE)
 {
-	// 비행기 Mesh 생성
-	CMesh* pCarMesh{ new CCarMeshDiffused(pd3dDevice, pd3dCommandList, 6.0f, 6.0f, 6.0f, XMFLOAT4(0.0f, 255.0f, 0.0f, 0.0f)) };
+	CMesh* pCarMesh{ new CCarMeshDiffused(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f, XMFLOAT4(0.0f, 255.0f, 0.0f, 0.0f)) };
+	CGameObject::SetMesh(pCarMesh);
 
-	SetMesh(pCarMesh);
-
-	// 플레이어의 카메라를 Spaceship 카메라로 변경(생성)
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
-	// 플레이어를 위한 Shader 변수 생성
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-
-	// 플레이어의 위치 설정
+	
 	SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
 
-	// 플레이어(비행기) Mesh를 Rendering할 때 사용할 Shader 생성
 	CPlayerShader* pShader{ new CPlayerShader() };
-
 	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
-
-	SetShader(pShader);
+	
+	CGameObject::SetShader(pShader);
+	m_pPlayer = this;
 }
 
 CCarPlayer::~CCarPlayer()
 {
 }
 
-// 카메라를 변경할 때 호출되는 함수이다.nNewCameraMode는 새로 설정할 카메라 모드이다.
+void CCarPlayer::Jump(FLOAT fTimeElapsed)
+{
+
+}
+
 CCamera* CCarPlayer::ChangeCamera(DWORD dwNewCameraMode, FLOAT fTimeElapsed)
 {
 	DWORD dwCurrentCameraMode{ (m_pCamera) ? m_pCamera->GetMode() : 0x00 };
@@ -229,7 +230,6 @@ CCamera* CCarPlayer::ChangeCamera(DWORD dwNewCameraMode, FLOAT fTimeElapsed)
 	{
 	case THIRD_PERSON_CAMERA:
 	{
-		// 플레이어의 특성을 3인칭 카메라 모드에 맞게 변경(지연 효과와 카메라 Offset 설정)
 		SetFriction(250.0f);
 		SetGravity(XMFLOAT3(0.0f, 1.0f, 0.0f));
 		SetMaxVelocityXZ(125.0f);
@@ -237,7 +237,7 @@ CCamera* CCarPlayer::ChangeCamera(DWORD dwNewCameraMode, FLOAT fTimeElapsed)
 
 		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, dwCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.25f);
-		m_pCamera->SetOffset(XMFLOAT3(0.0f, 30.0f, -25.0f));									// 카메라 위치 설정
+		m_pCamera->SetOffset(XMFLOAT3(0.0f, 35.0f, -30.0f));									// 카메라 위치 설정
 		m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
@@ -250,10 +250,17 @@ CCamera* CCarPlayer::ChangeCamera(DWORD dwNewCameraMode, FLOAT fTimeElapsed)
 
 	m_pCamera->SetPosition(Vector3::Add(m_xmf3Position, m_pCamera->GetOffset()));
 
-	// 플레이어를 시간의 경과에 따라 갱신(위치와 방향을 변경: 속도, 마찰력, 중력 등을 처리)
-	Update(fTimeElapsed);
+	CPlayer::Update(fTimeElapsed);
 
 	return m_pCamera;
+}
+
+void CCarPlayer::Animate(FLOAT fTimeElapsed)
+{
+	if (m_bJump)
+		Jump(fTimeElapsed);
+
+	CPlayer::Update(fTimeElapsed);
 }
 
 void CCarPlayer::PrepareRender()

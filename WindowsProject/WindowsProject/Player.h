@@ -3,7 +3,6 @@
 #include "Camera.h"
 
 #define DIR_FORWARD		 0x01
-#define DIR_BACKWARD	 0x02
 #define DIR_LEFT		 0x04
 #define DIR_RIGHT		 0x08
 #define DIR_UP			 0x10
@@ -56,6 +55,8 @@ public:
 	CCamera* OnChangeCamera(DWORD dwNewCameraMode, DWORD dwCurrentCameraMode);						// 카메라를 변경하기 위하여 호출하는 함수
 	virtual CCamera* ChangeCamera(DWORD dwNewCameraMode, FLOAT fTimeElapsed) { return nullptr; }
 public:
+	virtual void Animate(FLOAT fTimeElapsed);
+public:
 	virtual void PrepareRender();																	// 플레이어의 위치와 회전축으로부터 월드 변환 행렬을 생성하는 함수
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = nullptr);	// 플레이어의 카메라가 3인칭 카메라일 때 플레이어(Mesh)를 Rendering
 
@@ -79,6 +80,8 @@ protected:
 	LPVOID		 m_pCameraUpdatedContext;															// 카메라의 위치가 바뀔 때마다 호출되는 OnCameraUpdateCallback() 함수에서 사용하는 데이터
 protected:
 	CCamera*	 m_pCamera{ nullptr };																// 플레이어에 현재 설정된 카메라
+public:
+	BoundingOrientedBox m_xmBoundingBox;
 };
 
 class CCarPlayer : public CPlayer
@@ -86,7 +89,15 @@ class CCarPlayer : public CPlayer
 public:
 	CCarPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~CCarPlayer();
-
+public:
+	void ChangeJumpState(BOOL bJump) { m_bJump = bJump; }
+public:
+	void Jump(FLOAT fTimeElapsed);
+public:
 	virtual CCamera* ChangeCamera(DWORD nNewCameraMode, FLOAT fTimeElapsed);
+	virtual void Animate(FLOAT fTimeElapsed);
 	virtual void PrepareRender();
+
+private:
+	BOOL		 m_bJump;
 };

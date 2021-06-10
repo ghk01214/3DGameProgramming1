@@ -423,16 +423,19 @@ void CGameFramework::ProcessInput()
 		if (pKeyBuffer[VK_RIGHT] & 0xF0)
 			dwDirection |= DIR_RIGHT;
 
-		if (pKeyBuffer[VK_UP] & 0xF0)
-			dwDirection |= DIR_UP;
+		if (pKeyBuffer[VK_LCONTROL] & 0xF0)
+			((CCarPlayer*)m_pPlayer)->ChangeJumpState(TRUE);
 	}
 
-	m_pPlayer->Move(dwDirection, 70.0f * m_GameTimer.GetTimeElapsed(), FALSE);
+	m_pPlayer->Move(dwDirection, 6000.0f * m_GameTimer.GetTimeElapsed(), TRUE);
 	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
 }
 
 void CGameFramework::Animate()
 {
+	if (m_pPlayer)
+		((CCarPlayer*)m_pPlayer)->Animate(m_GameTimer.GetTimeElapsed());
+
 	if (m_pScene)
 		m_pScene->Animate(m_GameTimer.GetTimeElapsed(), m_pCamera);
 }

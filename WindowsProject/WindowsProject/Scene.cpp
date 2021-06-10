@@ -138,11 +138,20 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	// Graphic Root Signature 생성
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	m_nShaders = 1;
-	m_pShaders = new CWallShader[m_nShaders];
+	CObjectsShader* pShaders;
 
-	m_pShaders[0].CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
-	m_pShaders[0].BuildObjects(pd3dDevice, pd3dCommandList);
+	m_nShaders = 1 + 1;
+	m_vShaders.reserve(m_nShaders);
+
+	pShaders = new CWallShader();
+	pShaders->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
+	pShaders->BuildObjects(pd3dDevice, pd3dCommandList);
+	m_vShaders.push_back(pShaders);
+
+	pShaders = new CApproachingShader();
+	pShaders->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
+	pShaders->BuildObjects(pd3dDevice, pd3dCommandList);
+	m_vShaders.push_back(pShaders);
 }
 
 void CScene::ReleaseObjects()
@@ -152,18 +161,20 @@ void CScene::ReleaseObjects()
 
 	for (INT i = 0; i < m_nShaders; ++i)
 	{
-		m_pShaders[i].ReleaseShaderVariables();
-		m_pShaders[i].ReleaseObjects();
+		m_vShaders[i]->ReleaseShaderVariables();
+		m_vShaders[i]->ReleaseObjects();
 	}
 
-	if (m_pShaders)
-		delete[] m_pShaders;
+	if (!m_vShaders.empty())
+		m_vShaders.shrink_to_fit();
 }
 
 void CScene::ReleaseUploadBuffers()
 {
-	for (INT i = 0; i < m_nShaders; ++i)
-		m_pShaders[i].ReleaseUploadBuffers();
+	for (auto iter = m_vShaders.begin(); iter != m_vShaders.end(); ++iter)
+	{
+		(*iter)->ReleaseUploadBuffers();
+	}
 }
 
 ID3D12RootSignature* CScene::GetGraphicsRootSignature()
@@ -178,9 +189,9 @@ BOOL CScene::ProcessInput(UCHAR* pKeysBuffer)
 
 void CScene::Animate(FLOAT fTimeElapsed, CCamera* pCamera)
 {
-	for (INT i = 0; i < m_nShaders; ++i)
+	for (auto i = m_vShaders.begin(); i != m_vShaders.end(); ++i)
 	{
-		m_pShaders[i].Animate(fTimeElapsed, pCamera);
+		(*i)->Animate(fTimeElapsed, pCamera);
 	}
 }
 
@@ -193,9 +204,9 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 		pCamera->UpdateShaderVariables(pd3dCommandList);
 
 	// Scene을 Rendering하는 것은 Scene을 구성하는 Game Object(Shader가 포함하는 객체)들을 Rendering하는 것
-	for (INT i = 0; i < m_nShaders; ++i)
+	for (auto i = m_vShaders.begin(); i != m_vShaders.end(); ++i)
 	{
-		m_pShaders[i].Render(pd3dCommandList, pCamera);
+		(*i)->Render(pd3dCommandList, pCamera);
 	}
 }
 

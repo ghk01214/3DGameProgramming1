@@ -28,10 +28,10 @@ public:
 	BOOL OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 private:
-	ID3D12PipelineState*	 m_pd3dPipelineState{ nullptr };										// Graphics Pipeline 상태를 나타내는 Interface 포인터
+	ID3D12PipelineState*			 m_pd3dPipelineState{ nullptr };										// Graphics Pipeline 상태를 나타내는 Interface 포인터
 protected:
-	CWallShader*			 m_pShaders{ nullptr };
-	INT						 m_nShaders{ 0 };
+	std::vector<CObjectsShader*>	 m_vShaders;
+	INT								 m_nShaders{ 0 };
 protected:
-	ID3D12RootSignature*	 m_pd3dGraphicsRootSignature{ nullptr };								// Root Signature를 나타내는 Interface 포인터
+	ID3D12RootSignature*			 m_pd3dGraphicsRootSignature{ nullptr };								// Root Signature를 나타내는 Interface 포인터
 };

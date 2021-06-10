@@ -99,6 +99,16 @@ BOOL CGameObject::IsVisible(CCamera* pCamera)
 	return bIsVisible;
 }
 
+void CGameObject::UpdateBoundingBox()
+{
+	if (m_pMesh)
+	{
+		m_pMesh->m_xmBoundingBox.Transform(m_xmBoundingBox, XMLoadFloat4x4(&m_xmf4x4World));
+
+		XMStoreFloat4(&m_xmBoundingBox.Orientation, XMQuaternionNormalize(XMLoadFloat4(&m_xmBoundingBox.Orientation)));
+	}
+}
+
 void CGameObject::MoveStrate(FLOAT fDistance)
 {
 	XMFLOAT3 xmf3Position{ GetPosition() };
@@ -131,7 +141,8 @@ void CGameObject::MoveForward(FLOAT fDistance)
 
 void CGameObject::Animate(FLOAT fTimeElapsed, CCamera* pCamera)
 {
-
+	if (m_pShader)
+		UpdateBoundingBox();
 }
 
 void CGameObject::PrepareRender()
@@ -155,9 +166,9 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 
 //========================================================================================
 
-CWallObject::CWallObject(FLOAT fWidth, FLOAT fHeight, FLOAT fDepth) : m_fWidth(fWidth), m_fHeight(fHeight), m_fDepth(fDepth)
+CWallObject::CWallObject(FLOAT fDepth) : m_fDepth(fDepth)
 {
-	m_xmf3Position = CGameObject::GetPosition();
+	m_pxmf4WallPlanes.reserve(2);
 }
 
 CWallObject::~CWallObject()
@@ -167,7 +178,37 @@ CWallObject::~CWallObject()
 void CWallObject::Animate(FLOAT fTimeElapsed, CCamera* pCamera)
 {
 	if (m_xmf4x4World._43 + m_fDepth < pCamera->GetPosition().z)
-	{
 		CGameObject::SetPosition(0.0f, 0.0f, m_xmf4x4World._43 + m_fDepth * 4);
-	}
+	
+	CGameObject::Animate(fTimeElapsed, pCamera);
+}
+
+//========================================================================================
+
+CApproachingObject::CApproachingObject(FLOAT fDepth) : m_fDepth(fDepth)
+{
+	std::uniform_real_distribution<> randomSpeed(10.0f, 50.0f);
+
+	m_fApproachingSpeed = (FLOAT)randomSpeed(dre);
+}
+
+CApproachingObject::~CApproachingObject()
+{
+}
+
+void CApproachingObject::Animate(FLOAT fTimeElapsed, CCamera* pCamera)
+{
+	CGameObject::MoveForward(-m_fApproachingSpeed * fTimeElapsed);
+	CGameObject::Animate(fTimeElapsed, pCamera);
+}
+
+void CApproachingObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+{
+	UpdateShaderVariables(pd3dCommandList);
+
+	if (m_pShader)
+		m_pShader->Render(pd3dCommandList, pCamera);
+
+	if (m_pMesh)
+		m_pMesh->Render(pd3dCommandList);
 }

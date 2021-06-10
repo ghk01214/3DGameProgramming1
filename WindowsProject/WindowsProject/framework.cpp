@@ -1,5 +1,9 @@
 #include "framework.h"
 
+std::random_device rd;
+std::default_random_engine dre(rd());
+std::uniform_int_distribution<> uid(0, RAND_MAX);
+
 // 버퍼 리소스를 생성하는 함수. 버퍼의 Heap 유형에 따라 버퍼 리소스를 생성하고 초기화 데이터가 있으면 초기화
 ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType, D3D12_RESOURCE_STATES d3dResourceStates, ID3D12Resource** ppd3dUploadBuffer)
 {
@@ -34,7 +38,7 @@ ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	else if (d3dHeapType == D3D12_HEAP_TYPE_READBACK) 
 		d3dResourceInitialStates = D3D12_RESOURCE_STATE_COPY_DEST;
 
-	HRESULT hResult = pd3dDevice->CreateCommittedResource(&d3dHeapPropertiesDesc, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, d3dResourceInitialStates, nullptr, __uuidof(ID3D12Resource), (void**)&pd3dBuffer);
+	HRESULT hResult{ pd3dDevice->CreateCommittedResource(&d3dHeapPropertiesDesc, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, d3dResourceInitialStates, nullptr, __uuidof(ID3D12Resource), (void**)&pd3dBuffer) };
 	if (pData)
 	{
 		switch (d3dHeapType)
