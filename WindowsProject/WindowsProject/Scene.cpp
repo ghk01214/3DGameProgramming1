@@ -152,6 +152,34 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	pShaders->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
 	pShaders->BuildObjects(pd3dDevice, pd3dCommandList);
 	m_vShaders.push_back(pShaders);
+
+	CCarMeshDiffused* pCarMesh{ new CCarMeshDiffused(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f, XMFLOAT4(0.0f, 255.0f, 0.0f, 0.0f)) };
+	m_vPlayerMesh.push_back(pCarMesh);
+
+	pCarMesh = new CCarMeshDiffused(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f, XMFLOAT4(255.0f, 0.0, 0.0f, 0.0f));
+	m_vPlayerMesh.push_back(pCarMesh);
+}
+
+void CScene::RebuildObject()
+{
+	std::vector<CGameObject*> vpObject;
+	vpObject.reserve(m_vShaders[ObjectType::Approaching]->GetObjectsNum());
+
+	for (INT i = 0; i < m_vShaders[ObjectType::Approaching]->GetObjectsNum(); ++i)
+	{
+		vpObject.push_back(m_vShaders[ObjectType::Approaching]->GetObjects(i));
+	}
+
+	for (auto iter = vpObject.begin(); iter != vpObject.end(); ++iter)
+	{
+		if (IsBehindCamera(*iter))
+		{
+			CApproachingShader* pApproachingShader{ static_cast<CApproachingShader*>(m_vShaders[ObjectType::Approaching]) };
+
+			pApproachingShader->ReleaseApproachingObject(*iter);
+			pApproachingShader->RespawnObjects(m_pPlayer);
+		}
+	}
 }
 
 void CScene::ReleaseObjects()
@@ -166,7 +194,10 @@ void CScene::ReleaseObjects()
 	}
 
 	if (!m_vShaders.empty())
+	{
+		m_vShaders.clear();
 		m_vShaders.shrink_to_fit();
+	}
 }
 
 void CScene::ReleaseUploadBuffers()
@@ -177,9 +208,159 @@ void CScene::ReleaseUploadBuffers()
 	}
 }
 
-ID3D12RootSignature* CScene::GetGraphicsRootSignature()
+BOOL CScene::IsBehindCamera(CGameObject* pObject)
 {
-	return m_pd3dGraphicsRootSignature;
+	BOOL	 bIsVisible{ FALSE };
+	CCamera* pCamera{ m_pPlayer->GetCamera() };
+
+	if (pObject->GetPosition().z < pCamera->GetPosition().z)
+		bIsVisible = TRUE;
+
+	return bIsVisible;
+}
+
+void CScene::CheckObjectByObjectCollisions()
+{
+	// 다가오는 육면체들을 별도의 자료구조에 저장
+	std::vector<CGameObject*> pObject;
+	pObject.reserve(m_vShaders[ObjectType::Approaching]->GetObjectsNum());
+
+	for (INT i = 0; i < m_vShaders[ObjectType::Approaching]->GetObjectsNum(); ++i)
+	{
+		pObject.push_back(m_vShaders[ObjectType::Approaching]->GetObjects(i));
+	}
+	
+	for (auto iter = pObject.begin(); iter != pObject.end(); ++iter)
+	{
+		(*iter)->SetCollidedObject(nullptr);
+	}
+
+	for (auto iter1 = pObject.begin(); iter1 != pObject.end(); ++iter1)
+	{
+		for (auto iter2 = iter1 + 1; iter2 != pObject.end(); ++iter2)
+		{
+			if ((*iter1)->GetBoundingBox().Intersects((*iter2)->GetBoundingBox()))
+			{
+				(*iter1)->SetCollidedObject(*iter2);
+				(*iter2)->SetCollidedObject(*iter1);
+			}
+		}
+	}
+
+	for (auto iter = pObject.begin(); iter != pObject.end(); ++iter)
+	{
+		if ((*iter)->GetCollidedObject())
+		{
+			auto childIter{ static_cast<CApproachingObject*>(*iter) };
+			auto childIterCollidedObject{ static_cast<CApproachingObject*>(childIter->GetCollidedObject()) };
+			FLOAT fApproachingSpeed{ childIter->GetApproachingSpeed() };
+
+			childIter->SetApproachingSpeed(childIterCollidedObject->GetApproachingSpeed());
+			childIterCollidedObject->SetApproachingSpeed(fApproachingSpeed);
+			childIterCollidedObject->GetCollidedObject()->SetCollidedObject(nullptr);
+			childIter->SetCollidedObject(nullptr);
+		}
+	}
+}
+
+void CScene::CheckPlayerByObjectCollision()
+{
+	std::vector<CGameObject*> vpObject;
+	vpObject.reserve(m_vShaders[ObjectType::Approaching]->GetObjectsNum());
+
+	m_pPlayer->SetCollidedObject(nullptr);
+
+	for (INT i = 0; i < m_vShaders[ObjectType::Approaching]->GetObjectsNum(); ++i)
+	{
+		vpObject.push_back(m_vShaders[ObjectType::Approaching]->GetObjects(i));
+	}
+
+	for (auto iter = vpObject.begin(); iter != vpObject.end(); ++iter)
+	{
+		if (m_pPlayer->GetBoundingBox().Intersects((*iter)->GetBoundingBox()))
+		{
+			(*iter)->SetCollidedObject(m_pPlayer);
+			m_pPlayer->SetCollidedObject((*iter));
+
+			break;
+		}
+	}
+
+	if (m_pPlayer->GetCollidedObject())
+	{
+		static std::chrono::high_resolution_clock::time_point startTime;
+		CCarPlayer* pPlayer{ static_cast<CCarPlayer*>(m_pPlayer) };
+
+		if (pPlayer->GetFeverMode())
+		{
+			CApproachingShader* pApproachingShader{ static_cast<CApproachingShader*>(m_vShaders[ObjectType::Approaching]) };
+
+			pApproachingShader->ReleaseApproachingObject(pPlayer->GetCollidedObject());
+			pApproachingShader->RespawnObjects(pPlayer);
+
+			if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - startTime).count() > 10.0f)
+			{
+				pPlayer->SetFeverMode(FALSE);
+				pPlayer->SetFeverStack(0);
+				pPlayer->SetMesh(m_vPlayerMesh[PlayerMesh::Normal]);
+			}
+		}
+		else
+		{
+			if (CFeverObject* temp = dynamic_cast<CFeverObject*>(pPlayer->GetCollidedObject()))
+			{
+				pPlayer->IncreaseFeverStack();
+
+				CApproachingShader* pApproachingShader{ static_cast<CApproachingShader*>(m_vShaders[ObjectType::Approaching]) };
+
+				pApproachingShader->ReleaseApproachingObject(pPlayer->GetCollidedObject());
+				pApproachingShader->RespawnObjects(pPlayer);
+
+				if (pPlayer->GetFeverStack() == 10)
+				{
+					startTime = std::chrono::high_resolution_clock::now();
+
+					pPlayer->SetFeverMode(TRUE);
+					pPlayer->SetMesh(m_vPlayerMesh[PlayerMesh::Fever]);
+				}
+			}
+			else
+				m_bGameOver = TRUE;
+		}
+	}
+}
+
+void CScene::CheckPlayerByWallCollision()
+{
+	std::vector<CGameObject*>		 vpObject;
+	std::vector<BoundingOrientedBox> xmBoundingBox(m_vShaders[ObjectType::Wall]->GetObjectsNum());
+
+	vpObject.reserve(m_vShaders[ObjectType::Wall]->GetObjectsNum());
+
+	for (INT i = 0; i < m_vShaders[ObjectType::Wall]->GetObjectsNum(); ++i)
+	{
+		vpObject.push_back(m_vShaders[ObjectType::Wall]->GetObjects(i));
+		vpObject[i]->GetBoundingBox().Transform(xmBoundingBox[i], XMLoadFloat4x4(&vpObject[i]->GetWorldMatrix()));
+		XMStoreFloat4(&xmBoundingBox[i].Orientation, XMQuaternionNormalize(XMLoadFloat4(&xmBoundingBox[i].Orientation)));
+	}
+
+	for (auto iter = xmBoundingBox.begin(); iter != xmBoundingBox.end(); ++iter)
+	{
+		if (!(*iter).Intersects(m_pPlayer->GetBoundingBox()))
+		{
+			FLOAT xPos;
+			XMFLOAT3 xmf3PlayerPos{ m_pPlayer->GetPosition() };
+
+			xPos = xmf3PlayerPos.x;
+
+			if (m_pPlayer->GetPosition().x > 80.0f - 5.0f)
+				xPos = 80.0f - 5.0f;
+			else if (m_pPlayer->GetPosition().x < -80.0f + 5.0f)
+				xPos = -80.0f + 5.0f;
+
+			m_pPlayer->SetPosition(XMFLOAT3(xPos, xmf3PlayerPos.y, xmf3PlayerPos.z));
+		}
+	}
 }
 
 BOOL CScene::ProcessInput(UCHAR* pKeysBuffer)
@@ -189,10 +370,15 @@ BOOL CScene::ProcessInput(UCHAR* pKeysBuffer)
 
 void CScene::Animate(FLOAT fTimeElapsed, CCamera* pCamera)
 {
-	for (auto i = m_vShaders.begin(); i != m_vShaders.end(); ++i)
+	for (auto iter = m_vShaders.begin(); iter != m_vShaders.end(); ++iter)
 	{
-		(*i)->Animate(fTimeElapsed, pCamera);
+		(*iter)->Animate(fTimeElapsed, pCamera);
 	}
+
+	CheckPlayerByObjectCollision();
+	CheckObjectByObjectCollisions();
+	CheckPlayerByWallCollision();
+	RebuildObject();
 }
 
 void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)

@@ -60,7 +60,6 @@ void CPlayer::Move(DWORD dwDirection, FLOAT fDistance, BOOL bVelocity)
 
 	if (dwDirection)
 	{
-		// 화살표 키 '→'를 누르면 로컬 x축 방향으로 이동한다.'←'를 누르면 반대 방향으로 이동한다.
 		if (dwDirection & DIR_RIGHT)
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
 		
@@ -121,6 +120,8 @@ void CPlayer::Update(FLOAT fTimeElapsed)
 	
 	Move(xmf3Velocity, FALSE);
 
+	UpdateBoundingBox();
+
 	if (m_pPlayerUpdatedContext)
 		OnPlayerUpdateCallback(fTimeElapsed);
 
@@ -140,8 +141,6 @@ void CPlayer::Update(FLOAT fTimeElapsed)
 		fDeceleration = fLength;
 
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, TRUE));
-
-	m_pPlayer = this;
 }
 
 /*카메라를 변경할 때 ChangeCamera() 함수에서 호출되는 함수
@@ -192,12 +191,18 @@ void CPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamer
 
 //=====================================================================================================================================================
 
-CCarPlayer::CCarPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : m_bJump(FALSE)
+CCarPlayer::CCarPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	CMesh* pCarMesh{ new CCarMeshDiffused(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f, XMFLOAT4(0.0f, 255.0f, 0.0f, 0.0f)) };
 	CGameObject::SetMesh(pCarMesh);
 
-	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
+	m_pCamera		 = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
+
+	m_bJump			 = FALSE;
+	m_nJumpState	 = GoUp;
+	m_bFeverMode	 = FALSE;
+	m_nFeverStack	 = 0;
+	m_xmBoundingBox	 = pCarMesh->GetBoundingBox();
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	
@@ -205,9 +210,8 @@ CCarPlayer::CCarPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 
 	CPlayerShader* pShader{ new CPlayerShader() };
 	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
-	
+
 	CGameObject::SetShader(pShader);
-	m_pPlayer = this;
 }
 
 CCarPlayer::~CCarPlayer()
@@ -216,7 +220,33 @@ CCarPlayer::~CCarPlayer()
 
 void CCarPlayer::Jump(FLOAT fTimeElapsed)
 {
+	XMFLOAT3 xmf3Shift{ XMFLOAT3(0, 0, 0) };
 
+	if (m_xmf3Position.y > 20.0f)
+		m_nJumpState = GoDown;
+
+	switch (m_nJumpState)
+	{
+	case GoUp:
+	{
+		xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, 60.0f * fTimeElapsed);
+		break;
+	}
+	case GoDown:
+	{
+		xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -60.0f * fTimeElapsed);
+		break;
+	}
+	}
+
+	if (m_xmf3Position.y < 0.0f)
+	{
+		m_xmf3Position.y	 = 0.0f;
+		m_bJump				 = FALSE;
+		m_nJumpState		 = GoUp;
+	}
+
+	Move(xmf3Shift, FALSE);
 }
 
 CCamera* CCarPlayer::ChangeCamera(DWORD dwNewCameraMode, FLOAT fTimeElapsed)
@@ -260,7 +290,7 @@ void CCarPlayer::Animate(FLOAT fTimeElapsed)
 	if (m_bJump)
 		Jump(fTimeElapsed);
 
-	CPlayer::Update(fTimeElapsed);
+	CPlayer::Animate(fTimeElapsed);
 }
 
 void CCarPlayer::PrepareRender()

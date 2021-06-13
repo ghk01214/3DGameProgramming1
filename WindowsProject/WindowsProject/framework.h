@@ -22,9 +22,12 @@
 
 #include <string>
 #include <vector>
-#include <deque>
+#include <list>
+#include <set>
+#include <iterator>
+#include <algorithm>
 #include <random>
-#include <memory>
+#include <chrono>
 
 #include <wrl.h>
 #include <shellapi.h>
@@ -54,7 +57,6 @@ using Microsoft::WRL::ComPtr;
 
 extern std::random_device rd;
 extern std::default_random_engine dre;
-extern std::uniform_int_distribution<> uid;
 
 extern ID3D12Resource *CreateBufferResource(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,
 void *pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD,

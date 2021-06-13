@@ -83,6 +83,14 @@ void CGameObject::SetPosition(XMFLOAT3 xmf3Position)
 	SetPosition(xmf3Position.x, xmf3Position.y, xmf3Position.z);
 }
 
+void CGameObject::SetCollidedObject(CGameObject* pObjectCollided)
+{
+	if (this == nullptr)
+		return;
+
+	m_pObjectCollided = pObjectCollided;
+}
+
 BOOL CGameObject::IsVisible(CCamera* pCamera)
 {
 	PrepareRender();
@@ -116,7 +124,7 @@ void CGameObject::MoveStrate(FLOAT fDistance)
 
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Right, fDistance);
 
-	CGameObject::SetPosition(xmf3Position);
+	SetPosition(xmf3Position);
 }
 
 void CGameObject::MoveUp(FLOAT fDistance)
@@ -126,7 +134,7 @@ void CGameObject::MoveUp(FLOAT fDistance)
 
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Up, fDistance);
 
-	CGameObject::SetPosition(xmf3Position);
+	SetPosition(xmf3Position);
 }
 
 void CGameObject::MoveForward(FLOAT fDistance)
@@ -136,13 +144,12 @@ void CGameObject::MoveForward(FLOAT fDistance)
 
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
 
-	CGameObject::SetPosition(xmf3Position);
+	SetPosition(xmf3Position);
 }
 
 void CGameObject::Animate(FLOAT fTimeElapsed, CCamera* pCamera)
 {
-	if (m_pShader)
-		UpdateBoundingBox();
+	UpdateBoundingBox();
 }
 
 void CGameObject::PrepareRender()
@@ -168,7 +175,6 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 
 CWallObject::CWallObject(FLOAT fDepth) : m_fDepth(fDepth)
 {
-	m_pxmf4WallPlanes.reserve(2);
 }
 
 CWallObject::~CWallObject()
@@ -178,18 +184,18 @@ CWallObject::~CWallObject()
 void CWallObject::Animate(FLOAT fTimeElapsed, CCamera* pCamera)
 {
 	if (m_xmf4x4World._43 + m_fDepth < pCamera->GetPosition().z)
-		CGameObject::SetPosition(0.0f, 0.0f, m_xmf4x4World._43 + m_fDepth * 4);
+		SetPosition(0.0f, 0.0f, m_xmf4x4World._43 + m_fDepth * 4);
 	
 	CGameObject::Animate(fTimeElapsed, pCamera);
 }
 
 //========================================================================================
 
-CApproachingObject::CApproachingObject(FLOAT fDepth) : m_fDepth(fDepth)
+CApproachingObject::CApproachingObject()
 {
 	std::uniform_real_distribution<> randomSpeed(10.0f, 50.0f);
 
-	m_fApproachingSpeed = (FLOAT)randomSpeed(dre);
+	m_fApproachingSpeed = static_cast<FLOAT>(randomSpeed(dre));
 }
 
 CApproachingObject::~CApproachingObject()
@@ -198,17 +204,17 @@ CApproachingObject::~CApproachingObject()
 
 void CApproachingObject::Animate(FLOAT fTimeElapsed, CCamera* pCamera)
 {
-	CGameObject::MoveForward(-m_fApproachingSpeed * fTimeElapsed);
+	MoveForward(-m_fApproachingSpeed * fTimeElapsed);
+
 	CGameObject::Animate(fTimeElapsed, pCamera);
 }
 
-void CApproachingObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+//========================================================================================
+
+CFeverObject::CFeverObject()
 {
-	UpdateShaderVariables(pd3dCommandList);
+}
 
-	if (m_pShader)
-		m_pShader->Render(pd3dCommandList, pCamera);
-
-	if (m_pMesh)
-		m_pMesh->Render(pd3dCommandList);
+CFeverObject::~CFeverObject()
+{
 }

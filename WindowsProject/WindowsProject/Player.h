@@ -80,19 +80,29 @@ protected:
 	LPVOID		 m_pCameraUpdatedContext;															// 카메라의 위치가 바뀔 때마다 호출되는 OnCameraUpdateCallback() 함수에서 사용하는 데이터
 protected:
 	CCamera*	 m_pCamera{ nullptr };																// 플레이어에 현재 설정된 카메라
-public:
-	BoundingOrientedBox m_xmBoundingBox;
 };
 
 class CCarPlayer : public CPlayer
 {
 public:
+	enum
+	{
+		GoUp, GoDown
+	};
+public:
 	CCarPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~CCarPlayer();
 public:
-	void ChangeJumpState(BOOL bJump) { m_bJump = bJump; }
-public:
 	void Jump(FLOAT fTimeElapsed);
+public:
+	void SetJump(BOOL bJump) { m_bJump = bJump; }
+	void SetFeverMode(BOOL bFeverMode) { m_bFeverMode = bFeverMode; }
+	void SetFeverStack(INT nFeverStack) { m_nFeverStack = nFeverStack; }
+	void IncreaseFeverStack() { ++m_nFeverStack; }
+public:
+	BOOL GetJumpState() { return m_bJump; }
+	BOOL GetFeverMode() { return m_bFeverMode; }
+	INT GetFeverStack() { return m_nFeverStack; }
 public:
 	virtual CCamera* ChangeCamera(DWORD nNewCameraMode, FLOAT fTimeElapsed);
 	virtual void Animate(FLOAT fTimeElapsed);
@@ -100,4 +110,8 @@ public:
 
 private:
 	BOOL		 m_bJump;
+	INT			 m_nJumpState;
+	BOOL		 m_bFeverMode;
+private:
+	INT			 m_nFeverStack;
 };

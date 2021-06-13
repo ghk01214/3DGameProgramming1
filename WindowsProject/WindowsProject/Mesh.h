@@ -70,6 +70,15 @@ public:
 	// 직육면체의 가로, 세로, 높이의 길이를 지정하여 직육면체 Mesh 생성
 	CCubeMeshDiffused(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, FLOAT fWidth, FLOAT fHeight, FLOAT fDepth);
 	virtual ~CCubeMeshDiffused();
+
+};
+
+class CFeverCubeMeshDiffused : public CCubeMeshDiffused
+{
+public:
+	// 직육면체의 가로, 세로, 높이의 길이를 지정하여 직육면체 Mesh 생성
+	CFeverCubeMeshDiffused(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, FLOAT fWidth, FLOAT fHeight, FLOAT fDepth);
+	virtual ~CFeverCubeMeshDiffused();
 };
 
 // 플레이어 및 다가오는 자동차의 Mesh

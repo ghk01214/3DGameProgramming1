@@ -77,7 +77,7 @@ private:
 public:
 	CCamera*							 m_pCamera{ nullptr };
 private:
-	CScene*								 m_pScene;
+	CScene*								 m_pScene{ nullptr };
 public:
 	CPlayer*							 m_pPlayer{ nullptr };
 	POINT								 m_ptOldCursorPos;

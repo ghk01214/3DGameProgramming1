@@ -31,12 +31,6 @@ public:
 public:
 	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World);
 public:
-	virtual void CheckObjectByObjectCollisions() {}
-	virtual void CheckObjectByWallCollisions() {}
-	virtual void CheckPlayerByWallCollision() {}
-	virtual void CheckPlayerByObjectCollision() {}
-	virtual void CheckObjectOutOfCamera() {}
-public:
 	virtual void PrepareRender(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 
@@ -45,8 +39,6 @@ private:
 protected:
 	ID3D12PipelineState**				 m_ppd3dPipelineStates{ nullptr };
 	INT									 m_nPipelineStates{ 0 };
-protected:
-	CPlayer*							 m_pPlayer{ nullptr };
 };
 
 class CPlayerShader : public CShader
@@ -82,10 +74,9 @@ public:
 public:
 	virtual void ReleaseUploadBuffers();
 public:
-	virtual void CheckObjectByObjectCollisions();
-	virtual void CheckPlayerByWallCollision() {}
-	virtual void CheckPlayerByObjectCollision();
-	virtual void CheckObjectOutOfCamera();
+	INT GetObjectsNum() { return m_nObjects; }
+	virtual CGameObject* GetObjects(INT i) { return m_vpObjects[i]; }
+	//virtual CGameObject* GetCollidedObject(INT i) { return m_vpObjects[i]->GetCollidedObject(); }
 public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 
@@ -101,7 +92,20 @@ public:
 	~CApproachingShader();
 public:
 	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-	void ResetPosition();
+	virtual void ReleaseObjects();
+	void RespawnObjects(CPlayer* pPlayer);
+	void ReleaseApproachingObject(CGameObject* pObject);
+public:
+	virtual CGameObject* GetObjects(INT i);
+public:
+	virtual void Animate(FLOAT fTimeElapsed, CCamera* pCamera);
+public:
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
+
+protected:
+	std::list<CGameObject*>			 m_lpObjects;
+	std::vector<CCubeMeshDiffused*>	 m_pObjectMesh{ nullptr, nullptr };
+	std::set<FLOAT>					 m_sPositionRepitition;
 };
 
 class CWallShader : public CObjectsShader
@@ -111,8 +115,4 @@ public:
 	virtual ~CWallShader();
 public:
 	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-public:
-	virtual void CheckPlayerByWallCollision();
-public:
-	virtual void Animate(FLOAT fTimeElapsed, CCamera* pCamera);
 };

@@ -283,119 +283,6 @@ void CObjectsShader::ReleaseObjects()
 	}
 }
 
-void CObjectsShader::CheckObjectByObjectCollisions()
-{
-	for (auto iter = m_vpObjects.begin(); iter != m_vpObjects.end(); ++iter)
-	{
-		(*iter)->SetCollidedObject(nullptr);
-	}
-
-	for (auto iter1 = m_vpObjects.begin(); iter1 != m_vpObjects.end(); ++iter1)
-	{
-		for (auto iter2 = iter1 + 1; iter2 != m_vpObjects.end(); ++iter2)
-		{
-			if ((*iter1)->GetBoundingBox().Intersects((*iter2)->GetBoundingBox()))
-			{
-				(*iter1)->SetCollidedObject(*iter2);
-				(*iter2)->SetCollidedObject(*iter1);
-			}
-		}
-	}
-
-	//for (auto iter = m_vpObjects.begin(); iter != m_vpObjects.end(); ++iter)
-	//{
-	//	if ((*iter)->GetCollidedObject())
-	//	{
-	//		
-	//		(*iter)->SetCollidedObject(nullptr);
-	//	}
-	//}
-
-	//for (INT i = 0; i < m_nObjects; ++i)
-	//{
-	//	if (m_ppObjects[i]->m_pObjectCollided)
-	//	{
-	//		XMFLOAT3 xmf3MovingDirection = m_ppObjects[i]->m_xmf3MovingDirection;
-	//		FLOAT fMovingSpeed = m_ppObjects[i]->m_fMovingSpeed;
-
-	//		m_ppObjects[i]->m_xmf3MovingDirection = m_ppObjects[i]->m_pObjectCollided->m_xmf3MovingDirection;
-	//		m_ppObjects[i]->m_fMovingSpeed = m_ppObjects[i]->m_pObjectCollided->m_fMovingSpeed;
-	//		m_ppObjects[i]->m_pObjectCollided->m_xmf3MovingDirection = xmf3MovingDirection;
-	//		m_ppObjects[i]->m_pObjectCollided->m_fMovingSpeed = fMovingSpeed;
-	//		m_ppObjects[i]->m_pObjectCollided->m_pObjectCollided = nullptr;
-	//		m_ppObjects[i]->m_pObjectCollided = nullptr;
-	//	}
-	//}
-}
-
-void CObjectsShader::CheckPlayerByObjectCollision()
-{
-	/*m_pPlayer->m_pObjectCollided = nullptr;
-
-	for (INT i = 0; i < m_nObjects; ++i)
-	{
-		if (m_pPlayer->m_xmBoundingBox.Intersects(m_ppObjects[i]->m_xmBoundingBox))
-		{
-			m_ppObjects[i]->m_pObjectCollided = m_pPlayer;
-			m_pPlayer->m_pObjectCollided = m_ppObjects[i];
-
-			break;
-		}
-	}
-
-	if (m_pPlayer->m_pObjectCollided)
-	{
-		static std::chrono::high_resolution_clock::time_point startTime;
-
-		if (m_pPlayer->m_bFeverMode)
-		{
-			CEnemyObject* pEnemyObject = (CEnemyObject*)m_pPlayer->m_pObjectCollided;
-
-			pEnemyObject->m_bBlowingUp = TRUE;
-
-			if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - startTime).count() > 10)
-			{
-				m_pPlayer->m_bFeverMode = FALSE;
-				m_pPlayer->m_iFeverStack = 0;
-				m_pPlayer->m_dwColor = RGB(0, 0, 0);
-			}
-		}
-		else
-		{
-			if (m_pPlayer->m_pObjectCollided->m_dwColor == RGB(0, 0, 255))
-			{
-				++m_pPlayer->m_iFeverStack;
-
-				CEnemyObject* pEnemyObject = (CEnemyObject*)m_pPlayer->m_pObjectCollided;
-
-				pEnemyObject->m_bBlowingUp = TRUE;
-
-				if (m_pPlayer->m_iFeverStack == 200)
-				{
-					startTime = std::chrono::high_resolution_clock::now();
-
-					m_pPlayer->m_bFeverMode = TRUE;
-					m_pPlayer->m_dwColor = RGB(255, 0, 0);
-				}
-			}
-			else
-				m_bGameOver = TRUE;
-		}
-	}*/
-}
-
-void CObjectsShader::CheckObjectOutOfCamera()
-{
-	//for (INT i = 0; i < m_nObjects; ++i)
-	//{
-	//	if (m_ppObjects[i]->m_xmf4x4World._43 < m_pPlayer->m_xmf3Position.z - 30.0f)
-	//	{
-	//		ReleaseEnemyObjects(i);
-	//		RespawnEnemyObjects();
-	//	}
-	//}
-}
-
 void CObjectsShader::Animate(FLOAT fTimeElapsed, CCamera* pCamera)
 {
 	for (auto iter = m_vpObjects.begin(); iter != m_vpObjects.end(); ++iter)
@@ -473,34 +360,144 @@ CApproachingShader::~CApproachingShader()
 void CApproachingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	m_nObjects = 9 * 2;
-	m_vpObjects.reserve(m_nObjects);
 
-	CCubeMeshDiffused*	 pObjectMesh{ new CCubeMeshDiffused(pd3dDevice, pd3dCommandList, 15.0f, 15.0f, 15.0f) };
+	CCubeMeshDiffused*	 pObjectMesh{ new CFeverCubeMeshDiffused(pd3dDevice, pd3dCommandList, 15.0f, 15.0f, 15.0f) };
+	m_pObjectMesh[1]	 = pObjectMesh;
+
 	CGameObject*		 pObject{ nullptr };
+	INT					 j{ -3 };
 
-	INT					 j{ -4 };
+	pObjectMesh			 = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList, 15.0f, 15.0f, 15.0f);
+	m_pObjectMesh[0]	 = pObjectMesh;
 
 	for (INT i = 0; i < m_nObjects; ++i)
 	{
-		std::uniform_real_distribution<> randomPositionZ(240.0f, 800.0f);
-		FLOAT							 fDepth{ (FLOAT)randomPositionZ(dre) };
+		std::uniform_int_distribution<>	 randomPositionX(-3, 3);
+		std::uniform_real_distribution<> randomPositionZ(200.0f, 800.0f);
+		FLOAT							 fPosition{ static_cast<FLOAT>(randomPositionZ(dre)) };
+		INT								 nSeed{ randomPositionX(dre) };
 
-		pObject = new CApproachingObject(fDepth);
+		while (std::binary_search(m_sPositionRepitition.begin(), m_sPositionRepitition.end(), fPosition + 7.5f))
+		{
+			fPosition = static_cast<FLOAT>(randomPositionZ(dre));
+		}
+
+		while (std::binary_search(m_sPositionRepitition.begin(), m_sPositionRepitition.end(), fPosition - 7.5f))
+		{
+			fPosition = static_cast<FLOAT>(randomPositionZ(dre));
+		}
+
+		m_sPositionRepitition.insert(fPosition);
+
+		pObjectMesh	 = m_pObjectMesh[0];
+		pObject		 = new CApproachingObject();
+
+		if (nSeed % 3 == 0 && nSeed > 0)
+		{
+			pObjectMesh	 = m_pObjectMesh[1];
+			pObject		 = new CFeverObject();
+		}
 
 		pObject->SetMesh(pObjectMesh);
-		pObject->SetPosition(20.0f * j++, 0.0f, fDepth);
+		pObject->SetPosition(20.0f * j++, 0.0f, fPosition);
+		pObject->SetBoundingBox(pObjectMesh->GetBoundingBox());
 
-		m_vpObjects.push_back(pObject);
+		m_lpObjects.push_back(pObject);
 
-		if (j == 5)
-			j = -4;
+		if (j > 3)
+			j = -3;
 	}
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
-void CApproachingShader::ResetPosition()
+void CApproachingShader::ReleaseObjects()
 {
+	if (!m_lpObjects.empty())
+	{
+		for (auto iter = m_lpObjects.begin(); iter != m_lpObjects.end(); ++iter)
+		{
+			if (*iter)
+				delete* iter;
+		}
+
+		m_lpObjects.clear();
+	}
+}
+
+void CApproachingShader::RespawnObjects(CPlayer* pPlayer)
+{
+	++m_nObjects;
+
+	CCubeMeshDiffused*	 pObjectMesh{ m_pObjectMesh[0] };
+	CGameObject*		 pObject{ nullptr };
+
+	std::uniform_int_distribution<>	 randomPositionX(-3, 3);
+	std::uniform_real_distribution<> randomPositionZ(200.0f, 800.0f);
+	FLOAT							 fPositionZ{ static_cast<FLOAT>(randomPositionZ(dre)) };
+	INT								 nSeed{ randomPositionX(dre) };
+
+	while (std::binary_search(m_sPositionRepitition.begin(), m_sPositionRepitition.end(), fPositionZ + 7.5f))
+	{
+		fPositionZ = (FLOAT)randomPositionZ(dre);
+	}
+
+	while (std::binary_search(m_sPositionRepitition.begin(), m_sPositionRepitition.end(), fPositionZ - 7.5f))
+	{
+		fPositionZ = (FLOAT)randomPositionZ(dre);
+	}
+
+	m_sPositionRepitition.insert(fPositionZ);
+
+	pObject = new CApproachingObject();
+
+	if (nSeed % 3 == 0 && nSeed > 0)
+	{
+		pObjectMesh	 = m_pObjectMesh[1];
+		pObject		 = new CFeverObject();
+	}
+
+	pObject->SetMesh(pObjectMesh);
+	pObject->SetPosition(20.0f * randomPositionX(dre), 0.0f, pPlayer->GetPosition().z + fPositionZ);
+	pObject->SetBoundingBox(pObjectMesh->GetBoundingBox());
+
+	m_lpObjects.push_back(pObject);
+}
+
+void CApproachingShader::ReleaseApproachingObject(CGameObject* pObject)
+{
+	--m_nObjects;
+
+	m_sPositionRepitition.erase(pObject->GetPosition().z);
+	m_lpObjects.remove(pObject);
+}
+
+CGameObject* CApproachingShader::GetObjects(INT i)
+{
+	auto pos{ m_lpObjects.begin() };
+
+	std::advance(pos, i);
+
+	return *pos;
+}
+
+void CApproachingShader::Animate(FLOAT fTimeElapsed, CCamera* pCamera)
+{
+	for (auto iter = m_lpObjects.begin(); iter != m_lpObjects.end(); ++iter)
+	{
+		(*iter)->Animate(fTimeElapsed, pCamera);
+	}
+}
+
+void CApproachingShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+{
+	CShader::Render(pd3dCommandList, pCamera);
+
+	for (auto iter = m_lpObjects.begin(); iter != m_lpObjects.end(); ++iter)
+	{
+		if (*iter)
+			(*iter)->Render(pd3dCommandList, pCamera);
+	}
 }
 
 //=============================================================================================================
@@ -527,56 +524,15 @@ void CWallShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	for (INT i = 0; i < m_nObjects; ++i)
 	{
-		pWallMesh	 = new CWallMeshDiffused(pd3dDevice, pd3dCommandList, fWidth, fHeight, fDepth, 255.0f * ((i % 4) + 1));
+		pWallMesh	 = new CWallMeshDiffused(pd3dDevice, pd3dCommandList, fWidth, fHeight, fDepth, 1.0f * ((i % 4) + 1));
 		pWallObject	 = new CWallObject(fDepth);
 
 		pWallObject->SetMesh(pWallMesh);
 		pWallObject->SetPosition(0.0f, 0.0f, fDepth * i);
-		pWallObject->SetBoundingBox(BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(fWidth, fHeight, fDepth), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f)));
+		pWallObject->SetBoundingBox(pWallMesh->GetBoundingBox());
 
 		m_vpObjects.push_back(pWallObject);
 	}
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-}
-
-void CWallShader::CheckPlayerByWallCollision()
-{
-	BoundingOrientedBox xmOOBBPlayerMoveCheck;
-
-	for (auto iter = m_vpObjects.begin(); iter != m_vpObjects.end(); ++iter)
-	{
-		(*iter)->GetPlayerMoveCheckBoundingBox().Transform(xmOOBBPlayerMoveCheck, XMLoadFloat4x4(&(*iter)->GetWorldMatrix()));
-	}
-
-	XMStoreFloat4(&xmOOBBPlayerMoveCheck.Orientation, XMQuaternionNormalize(XMLoadFloat4(&xmOOBBPlayerMoveCheck.Orientation)));
-	
-	for (auto iter = m_vpObjects.begin(); iter != m_vpObjects.end(); ++iter)
-	{
-		if (!xmOOBBPlayerMoveCheck.Intersects((*iter)->GetPlayer()->m_xmBoundingBox))
-		{
-			FLOAT xPos;
-
-			if (m_pPlayer->GetPosition().x > 75.0f)
-				xPos = 70.0f;
-			else if (m_pPlayer->GetPosition().x < -75.0f)
-				xPos = -70.0f;
-
-			//m_pPlayer->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
-			//
-			//for (auto iter = m_vpObjects.begin(); iter != m_vpObjects.end(); ++iter)
-			//{
-			//	(*iter)->SetPosition(m_pPlayer->GetPosition())
-			//}
-
-			m_pPlayer->SetPosition(XMFLOAT3(xPos, m_pPlayer->GetPosition().y, m_pPlayer->GetPosition().z));
-		}
-	}
-}
-
-void CWallShader::Animate(FLOAT fTimeElapsed, CCamera* pCamera)
-{
-	CObjectsShader::Animate(fTimeElapsed, pCamera);
-
-	//CheckPlayerByWallCollision();
 }

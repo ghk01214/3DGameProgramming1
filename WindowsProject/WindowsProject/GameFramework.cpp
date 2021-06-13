@@ -388,6 +388,8 @@ void CGameFramework::BuildObjects()
 	m_pPlayer = pCarPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
 
+	m_pScene->SetPlayer(m_pPlayer);
+
 	// Scene 객체를 생성하기 위하여 필요한 Graphic 명령 List들을 명령 Queue에 추가
 	m_pd3dCommandList->Close();
 
@@ -423,8 +425,8 @@ void CGameFramework::ProcessInput()
 		if (pKeyBuffer[VK_RIGHT] & 0xF0)
 			dwDirection |= DIR_RIGHT;
 
-		if (pKeyBuffer[VK_LCONTROL] & 0xF0)
-			((CCarPlayer*)m_pPlayer)->ChangeJumpState(TRUE);
+		if (pKeyBuffer[VK_LCONTROL] & 0xF0 && !static_cast<CCarPlayer*>(m_pPlayer)->GetJumpState())
+			static_cast<CCarPlayer*>(m_pPlayer)->SetJump(TRUE);
 	}
 
 	m_pPlayer->Move(dwDirection, 6000.0f * m_GameTimer.GetTimeElapsed(), TRUE);
@@ -434,7 +436,7 @@ void CGameFramework::ProcessInput()
 void CGameFramework::Animate()
 {
 	if (m_pPlayer)
-		((CCarPlayer*)m_pPlayer)->Animate(m_GameTimer.GetTimeElapsed());
+		static_cast<CCarPlayer*>(m_pPlayer)->Animate(m_GameTimer.GetTimeElapsed());
 
 	if (m_pScene)
 		m_pScene->Animate(m_GameTimer.GetTimeElapsed(), m_pCamera);
@@ -442,6 +444,12 @@ void CGameFramework::Animate()
 
 void CGameFramework::FrameAdvance()
 {
+	if (m_pScene->IsGameOver())
+	{
+		ReleaseObjects();
+		BuildObjects();
+	}
+
 	m_GameTimer.Tick(0.0f);
 
 	ProcessInput();
@@ -524,20 +532,8 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	{
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
-	{
-		// 마우스 캡쳐를 하고 현재 마우스 위치를 가져온다.
-		::SetCapture(hWnd);
-		::GetCursorPos(&m_ptOldCursorPos);
-
-		break;
-	}
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
-	{
-		// 마우스 캡쳐 해제
-		::ReleaseCapture();
-		break;
-	}
 	case WM_MOUSEMOVE:
 		break;
 	default:
@@ -574,8 +570,8 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 	{
 	case WM_SIZE:
 	{
-		m_nWndClientWidth = LOWORD(lParam);
-		m_nWndClientHeight = HIWORD(lParam);
+		m_nWndClientWidth	 = LOWORD(lParam);
+		m_nWndClientHeight	 = HIWORD(lParam);
 
 		break;
 	}

@@ -89,6 +89,7 @@ CCubeMeshDiffused::CCubeMeshDiffused(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 	// Vertex 버퍼는 직육면체의 꼭지점 8개에 대한 Vertex 데이터를 가진다.
 	m_vVertices.reserve(8);
+
 	m_vVertices.emplace_back(XMFLOAT3(-fx, +fy, -fz), Vector4::Add(XMFLOAT4(-0.5f, -0.5f, -0.5f, 0.0f), RANDOM_COLOR));
 	m_vVertices.emplace_back(XMFLOAT3(+fx, +fy, -fz), Vector4::Add(XMFLOAT4(-0.5f, -0.5f, -0.5f, 0.0f), RANDOM_COLOR));
 	m_vVertices.emplace_back(XMFLOAT3(+fx, +fy, +fz), Vector4::Add(XMFLOAT4(-0.5f, -0.5f, -0.5f, 0.0f), RANDOM_COLOR));
@@ -97,15 +98,6 @@ CCubeMeshDiffused::CCubeMeshDiffused(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	m_vVertices.emplace_back(XMFLOAT3(+fx, -fy, -fz), Vector4::Add(XMFLOAT4(-0.5f, -0.5f, -0.5f, 0.0f), RANDOM_COLOR));
 	m_vVertices.emplace_back(XMFLOAT3(+fx, -fy, +fz), Vector4::Add(XMFLOAT4(-0.5f, -0.5f, -0.5f, 0.0f), RANDOM_COLOR));
 	m_vVertices.emplace_back(XMFLOAT3(-fx, -fy, +fz), Vector4::Add(XMFLOAT4(-0.5f, -0.5f, -0.5f, 0.0f), RANDOM_COLOR));
-
-	m_vVertices.emplace_back(XMFLOAT3(-fx, +fy, -fz), XMFLOAT4(-0.1f, -0.1f, -0.1f, 0.0f));
-	m_vVertices.emplace_back(XMFLOAT3(+fx, +fy, -fz), XMFLOAT4(-0.1f, -0.1f, -0.1f, 0.0f));
-	m_vVertices.emplace_back(XMFLOAT3(+fx, +fy, +fz), XMFLOAT4(-0.1f, -0.1f, -0.1f, 0.0f));
-	m_vVertices.emplace_back(XMFLOAT3(-fx, +fy, +fz), XMFLOAT4(-0.1f, -0.1f, -0.1f, 0.0f));
-	m_vVertices.emplace_back(XMFLOAT3(-fx, -fy, -fz), XMFLOAT4(-0.1f, -0.1f, -0.1f, 0.0f));
-	m_vVertices.emplace_back(XMFLOAT3(+fx, -fy, -fz), XMFLOAT4(-0.1f, -0.1f, -0.1f, 0.0f));
-	m_vVertices.emplace_back(XMFLOAT3(+fx, -fy, +fz), XMFLOAT4(-0.1f, -0.1f, -0.1f, 0.0f));
-	m_vVertices.emplace_back(XMFLOAT3(-fx, -fy, +fz), XMFLOAT4(-0.1f, -0.1f, -0.1f, 0.0f));
 
 	m_pd3dVertexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, &(*(m_vVertices.data())), m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
 	
@@ -177,10 +169,103 @@ CCubeMeshDiffused::CCubeMeshDiffused(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	m_d3dIndexBufferView.Format				 = DXGI_FORMAT_R32_UINT;
 	m_d3dIndexBufferView.SizeInBytes		 = sizeof(UINT) * m_nIndices;
 
-	m_xmBoundingBox							 = BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(fx, fy, fz), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+	m_xmBoundingBox = BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(fx, fy, fz), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 }
 
 CCubeMeshDiffused::~CCubeMeshDiffused()
+{
+}
+
+//========================================================================================================================================
+
+
+CFeverCubeMeshDiffused::CFeverCubeMeshDiffused(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, FLOAT fWidth, FLOAT fHeight, FLOAT fDepth) : CCubeMeshDiffused(pd3dDevice, pd3dCommandList, fWidth, fHeight, fDepth)
+{
+	FLOAT fx{ fWidth * 0.5f };	 	// fWidth: 직육면체 가로(x-축) 길이
+	FLOAT fy{ fHeight * 0.5f };		// fHeight: 직육면체 세로(y-축) 길이
+	FLOAT fz{ fDepth * 0.5f };		// fDepth: 직육면체 깊이(z-축) 길이
+
+	// Vertex 버퍼는 직육면체의 꼭지점 8개에 대한 Vertex 데이터를 가진다.
+	m_vVertices.clear();
+
+	m_vVertices.emplace_back(XMFLOAT3(-fx, +fy, -fz), Vector4::Add(XMFLOAT4(1.0f, 1.0f, 0.0f, 0.0f), RANDOM_COLOR));
+	m_vVertices.emplace_back(XMFLOAT3(+fx, +fy, -fz), Vector4::Add(XMFLOAT4(1.0f, 1.0f, 0.0f, 0.0f), RANDOM_COLOR));
+	m_vVertices.emplace_back(XMFLOAT3(+fx, +fy, +fz), Vector4::Add(XMFLOAT4(1.0f, 1.0f, 0.0f, 0.0f), RANDOM_COLOR));
+	m_vVertices.emplace_back(XMFLOAT3(-fx, +fy, +fz), Vector4::Add(XMFLOAT4(1.0f, 1.0f, 0.0f, 0.0f), RANDOM_COLOR));
+	m_vVertices.emplace_back(XMFLOAT3(-fx, -fy, -fz), Vector4::Add(XMFLOAT4(1.0f, 1.0f, 0.0f, 0.0f), RANDOM_COLOR));
+	m_vVertices.emplace_back(XMFLOAT3(+fx, -fy, -fz), Vector4::Add(XMFLOAT4(1.0f, 1.0f, 0.0f, 0.0f), RANDOM_COLOR));
+	m_vVertices.emplace_back(XMFLOAT3(+fx, -fy, +fz), Vector4::Add(XMFLOAT4(1.0f, 1.0f, 0.0f, 0.0f), RANDOM_COLOR));
+	m_vVertices.emplace_back(XMFLOAT3(-fx, -fy, +fz), Vector4::Add(XMFLOAT4(1.0f, 1.0f, 0.0f, 0.0f), RANDOM_COLOR));
+
+	m_pd3dVertexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, &(*(m_vVertices.data())), m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
+
+	// Vertex 버퍼 뷰를 생성한다.
+	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
+
+	// Index 버퍼는 직육면체의 6개의 면(사각형)에 대한 기하 정보를 갖는다. 삼각형 리스트로 직육면체를 표현할 것이므로
+	// 각 면은 2개의 삼각형을 가지고 각 삼각형은 3개의 Vertex가 필요. 즉, 인덱스 버퍼는 전체 36(=6*2*3)개의 인덱스를 가져야 한다
+
+	std::vector<UINT> vnIndices;
+	vnIndices.reserve(m_nIndices);
+
+	// 윗면(Top) 사각형
+	vnIndices.emplace_back(3);
+	vnIndices.emplace_back(1);
+	vnIndices.emplace_back(0);
+	vnIndices.emplace_back(2);
+	vnIndices.emplace_back(1);
+	vnIndices.emplace_back(3);
+
+	// 아래면(Bottom) 사각형
+	vnIndices.emplace_back(6);
+	vnIndices.emplace_back(4);
+	vnIndices.emplace_back(5);
+	vnIndices.emplace_back(7);
+	vnIndices.emplace_back(4);
+	vnIndices.emplace_back(6);
+
+	// 앞면(Front) 사각형
+	vnIndices.emplace_back(2);
+	vnIndices.emplace_back(7);
+	vnIndices.emplace_back(6);
+	vnIndices.emplace_back(3);
+	vnIndices.emplace_back(7);
+	vnIndices.emplace_back(2);
+
+	// 뒷면(Back) 사각형
+	vnIndices.emplace_back(0);
+	vnIndices.emplace_back(5);
+	vnIndices.emplace_back(4);
+	vnIndices.emplace_back(1);
+	vnIndices.emplace_back(5);
+	vnIndices.emplace_back(0);
+
+	// 옆면(Left) 사각형
+	vnIndices.emplace_back(3);
+	vnIndices.emplace_back(4);
+	vnIndices.emplace_back(7);
+	vnIndices.emplace_back(0);
+	vnIndices.emplace_back(4);
+	vnIndices.emplace_back(3);
+
+	// 옆면(Right) 사각형
+	vnIndices.emplace_back(1);
+	vnIndices.emplace_back(6);
+	vnIndices.emplace_back(5);
+	vnIndices.emplace_back(2);
+	vnIndices.emplace_back(6);
+	vnIndices.emplace_back(1);
+
+	// Index 버퍼 생성
+	m_pd3dIndexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, (&(*(vnIndices.data()))), sizeof(UINT) * m_nIndices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_pd3dIndexUploadBuffer);
+
+	// Index 버퍼 View 생성
+	m_d3dIndexBufferView.BufferLocation = m_pd3dIndexBuffer->GetGPUVirtualAddress();
+
+	m_xmBoundingBox = BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(fx, fy, fz), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+}
+
+CFeverCubeMeshDiffused::~CFeverCubeMeshDiffused()
 {
 }
 
@@ -211,34 +296,14 @@ CCarMeshDiffused::CCarMeshDiffused(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_vVertices.emplace_back(XMFLOAT3(-fx, -fy, +(fz * 0.7f) - 2.1f), Vector4::Add(xmf4Color, RANDOM_COLOR));
 
 	// 플레이어의 아래쪽 육면체의 8개 꼭지점에 대한 Vertex 버퍼
-	m_vVertices.emplace_back(XMFLOAT3(-fx, +(fy + 4.5f), -(fz * 0.8f) + 2.4f), Vector4::Add(xmf4Color, RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(+fx, +(fy + 4.5f), -(fz * 0.8f) + 2.4f), Vector4::Add(xmf4Color, RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(+fx, +(fy + 4.5f), +(fz * 0.8f) + 2.4f), Vector4::Add(xmf4Color, RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(-fx, +(fy + 4.5f), +(fz * 0.8f) + 2.4f), Vector4::Add(xmf4Color, RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(-fx, -(fy + 4.5f), -(fz * 0.8f) + 2.4f), Vector4::Add(xmf4Color, RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(+fx, -(fy + 4.5f), -(fz * 0.8f) + 2.4f), Vector4::Add(xmf4Color, RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(+fx, -(fy + 4.5f), +(fz * 0.8f) + 2.4f), Vector4::Add(xmf4Color, RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(-fx, -(fy + 4.5f), +(fz * 0.8f) + 2.4f), Vector4::Add(xmf4Color, RANDOM_COLOR));
-
-	// 플레이어가 피버모드일때 위쪽 육면체의 8개 꼭지점에 대한 Vertex 버퍼(정점의 색상 변경)
-	m_vVertices.emplace_back(XMFLOAT3(-fx, +fy, -(fz * 0.7f) - 2.1f), Vector4::Add(XMFLOAT4(255.0f, 0.0f, 0.0f, 0.0f), RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(+fx, +fy, -(fz * 0.7f) - 2.1f), Vector4::Add(XMFLOAT4(255.0f, 0.0f, 0.0f, 0.0f), RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(+fx, +fy, +(fz * 0.7f) - 2.1f), Vector4::Add(XMFLOAT4(255.0f, 0.0f, 0.0f, 0.0f), RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(-fx, +fy, +(fz * 0.7f) - 2.1f), Vector4::Add(XMFLOAT4(255.0f, 0.0f, 0.0f, 0.0f), RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(-fx, -fy, -(fz * 0.7f) - 2.1f), Vector4::Add(XMFLOAT4(255.0f, 0.0f, 0.0f, 0.0f), RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(+fx, -fy, -(fz * 0.7f) - 2.1f), Vector4::Add(XMFLOAT4(255.0f, 0.0f, 0.0f, 0.0f), RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(+fx, -fy, +(fz * 0.7f) - 2.1f), Vector4::Add(XMFLOAT4(255.0f, 0.0f, 0.0f, 0.0f), RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(-fx, -fy, +(fz * 0.7f) - 2.1f), Vector4::Add(XMFLOAT4(255.0f, 0.0f, 0.0f, 0.0f), RANDOM_COLOR));
-
-	// 플레이어가 피버모드일때 아래쪽 육면체의 8개 꼭지점에 대한 Vertex 버퍼(정점의 색상 변경)
-	m_vVertices.emplace_back(XMFLOAT3(-fx, +(fy + 4.5f), -(fz * 0.8f) + 2.4f), Vector4::Add(XMFLOAT4(255.0f, 0.0f, 0.0f, 0.0f), RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(+fx, +(fy + 4.5f), -(fz * 0.8f) + 2.4f), Vector4::Add(XMFLOAT4(255.0f, 0.0f, 0.0f, 0.0f), RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(+fx, +(fy + 4.5f), +(fz * 0.8f) + 2.4f), Vector4::Add(XMFLOAT4(255.0f, 0.0f, 0.0f, 0.0f), RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(-fx, +(fy + 4.5f), +(fz * 0.8f) + 2.4f), Vector4::Add(XMFLOAT4(255.0f, 0.0f, 0.0f, 0.0f), RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(-fx, -(fy + 4.5f), -(fz * 0.8f) + 2.4f), Vector4::Add(XMFLOAT4(255.0f, 0.0f, 0.0f, 0.0f), RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(+fx, -(fy + 4.5f), -(fz * 0.8f) + 2.4f), Vector4::Add(XMFLOAT4(255.0f, 0.0f, 0.0f, 0.0f), RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(+fx, -(fy + 4.5f), +(fz * 0.8f) + 2.4f), Vector4::Add(XMFLOAT4(255.0f, 0.0f, 0.0f, 0.0f), RANDOM_COLOR));
-	m_vVertices.emplace_back(XMFLOAT3(-fx, -(fy + 4.5f), +(fz * 0.8f) + 2.4f), Vector4::Add(XMFLOAT4(255.0f, 0.0f, 0.0f, 0.0f), RANDOM_COLOR));
+	m_vVertices.emplace_back(XMFLOAT3(-fx, +(fy * 2.0f), -(fz * 0.8f) + 2.4f), Vector4::Add(xmf4Color, RANDOM_COLOR));
+	m_vVertices.emplace_back(XMFLOAT3(+fx, +(fy * 2.0f), -(fz * 0.8f) + 2.4f), Vector4::Add(xmf4Color, RANDOM_COLOR));
+	m_vVertices.emplace_back(XMFLOAT3(+fx, +(fy * 2.0f), +(fz * 0.8f) + 2.4f), Vector4::Add(xmf4Color, RANDOM_COLOR));
+	m_vVertices.emplace_back(XMFLOAT3(-fx, +(fy * 2.0f), +(fz * 0.8f) + 2.4f), Vector4::Add(xmf4Color, RANDOM_COLOR));
+	m_vVertices.emplace_back(XMFLOAT3(-fx, -(fy * 2.0f), -(fz * 0.8f) + 2.4f), Vector4::Add(xmf4Color, RANDOM_COLOR));
+	m_vVertices.emplace_back(XMFLOAT3(+fx, -(fy * 2.0f), -(fz * 0.8f) + 2.4f), Vector4::Add(xmf4Color, RANDOM_COLOR));
+	m_vVertices.emplace_back(XMFLOAT3(+fx, -(fy * 2.0f), +(fz * 0.8f) + 2.4f), Vector4::Add(xmf4Color, RANDOM_COLOR));
+	m_vVertices.emplace_back(XMFLOAT3(-fx, -(fy * 2.0f), +(fz * 0.8f) + 2.4f), Vector4::Add(xmf4Color, RANDOM_COLOR));
 
 	m_pd3dVertexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, &(*(m_vVertices.data())), m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
 
@@ -365,7 +430,7 @@ CCarMeshDiffused::~CCarMeshDiffused()
 
 //========================================================================================================================================
 
-CWallMeshDiffused::CWallMeshDiffused(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, FLOAT fWidth, FLOAT fHeight, FLOAT fDepth, FLOAT fColor)
+CWallMeshDiffused::CWallMeshDiffused(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, FLOAT fWidth, FLOAT fHeight, FLOAT fDepth, FLOAT fColor) : CMesh(pd3dDevice, pd3dCommandList)
 {
 	// 직육면체는 꼭지점(Vertex)이 8개
 	m_nVertices				 = 8;
