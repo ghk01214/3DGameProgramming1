@@ -251,14 +251,22 @@ void CScene::CheckObjectByObjectCollisions()
 	{
 		if ((*iter)->GetCollidedObject())
 		{
-			auto childIter{ static_cast<CApproachingObject*>(*iter) };
-			auto childIterCollidedObject{ static_cast<CApproachingObject*>(childIter->GetCollidedObject()) };
-			FLOAT fApproachingSpeed{ childIter->GetApproachingSpeed() };
+			auto				 childIter{ static_cast<CApproachingObject*>(*iter) };
+			auto				 childIterCollidedObject{ static_cast<CApproachingObject*>(childIter->GetCollidedObject()) };
+			FLOAT				 fApproachingSpeed{ childIter->GetApproachingSpeed() };
+			CApproachingShader*	 pApproachingShader{ static_cast<CApproachingShader*>(m_vShaders[ObjectType::Approaching]) };
+			auto				 Iter{ childIter };
 
-			childIter->SetApproachingSpeed(childIterCollidedObject->GetApproachingSpeed());
-			childIterCollidedObject->SetApproachingSpeed(fApproachingSpeed);
-			childIterCollidedObject->GetCollidedObject()->SetCollidedObject(nullptr);
-			childIter->SetCollidedObject(nullptr);
+			if (fApproachingSpeed > childIterCollidedObject->GetApproachingSpeed())
+			{
+				Iter = childIterCollidedObject;
+				fApproachingSpeed = childIterCollidedObject->GetApproachingSpeed();
+			}
+
+			Iter->GetCollidedObject()->SetCollidedObject(nullptr);
+
+			pApproachingShader->ReleaseApproachingObject(Iter);
+			pApproachingShader->RespawnObjects(m_pPlayer);
 		}
 	}
 }

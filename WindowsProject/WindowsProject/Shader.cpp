@@ -377,17 +377,20 @@ void CApproachingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 		FLOAT							 fPosition{ static_cast<FLOAT>(randomPositionZ(dre)) };
 		INT								 nSeed{ randomPositionX(dre) };
 
-		while (std::binary_search(m_sPositionRepitition.begin(), m_sPositionRepitition.end(), fPosition + 7.5f))
+		while (TRUE)
 		{
+			auto pos{ std::find_if(m_lPositionRepitition.begin(), m_lPositionRepitition.end(), [fPosition](const FLOAT& a)
+				{
+					return (fPosition - 7.5f < a) && (a < fPosition + 7.5f);
+				})};
+
+			if (pos == m_lPositionRepitition.end())
+				break;
+
 			fPosition = static_cast<FLOAT>(randomPositionZ(dre));
 		}
 
-		while (std::binary_search(m_sPositionRepitition.begin(), m_sPositionRepitition.end(), fPosition - 7.5f))
-		{
-			fPosition = static_cast<FLOAT>(randomPositionZ(dre));
-		}
-
-		m_sPositionRepitition.insert(fPosition);
+		m_lPositionRepitition.push_back(fPosition);
 
 		pObjectMesh	 = m_pObjectMesh[0];
 		pObject		 = new CApproachingObject();
@@ -437,17 +440,20 @@ void CApproachingShader::RespawnObjects(CPlayer* pPlayer)
 	FLOAT							 fPositionZ{ static_cast<FLOAT>(randomPositionZ(dre)) };
 	INT								 nSeed{ randomPositionX(dre) };
 
-	while (std::binary_search(m_sPositionRepitition.begin(), m_sPositionRepitition.end(), fPositionZ + 7.5f))
+	while (TRUE)
 	{
-		fPositionZ = (FLOAT)randomPositionZ(dre);
+		auto pos{ std::find_if(m_lPositionRepitition.begin(), m_lPositionRepitition.end(), [fPositionZ](const FLOAT& a)
+			{
+				return (fPositionZ - 7.5f < a) && (a < fPositionZ + 7.5f);
+			}) };
+
+		if (pos == m_lPositionRepitition.end())
+			break;
+
+		fPositionZ = static_cast<FLOAT>(randomPositionZ(dre));
 	}
 
-	while (std::binary_search(m_sPositionRepitition.begin(), m_sPositionRepitition.end(), fPositionZ - 7.5f))
-	{
-		fPositionZ = (FLOAT)randomPositionZ(dre);
-	}
-
-	m_sPositionRepitition.insert(fPositionZ);
+	m_lPositionRepitition.push_back(fPositionZ);
 
 	pObject = new CApproachingObject();
 
@@ -468,7 +474,7 @@ void CApproachingShader::ReleaseApproachingObject(CGameObject* pObject)
 {
 	--m_nObjects;
 
-	m_sPositionRepitition.erase(pObject->GetPosition().z);
+	m_lPositionRepitition.remove(pObject->GetPosition().z);
 	m_lpObjects.remove(pObject);
 }
 

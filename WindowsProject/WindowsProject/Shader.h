@@ -105,7 +105,7 @@ public:
 protected:
 	std::list<CGameObject*>			 m_lpObjects;
 	std::vector<CCubeMeshDiffused*>	 m_pObjectMesh{ nullptr, nullptr };
-	std::set<FLOAT>					 m_sPositionRepitition;
+	std::list<FLOAT>				 m_lPositionRepitition;
 };
 
 class CWallShader : public CObjectsShader
