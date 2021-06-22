@@ -11,11 +11,11 @@ CGameFramework::CGameFramework()
 	m_pd3dPipelineState				 = nullptr;
 	m_pd3dCommandList				 = nullptr;
 
-	m_ppd3dRenderTargetBuffers.reserve(m_nSwapChainBuffers);
+	m_vpd3dSwapChainBackBuffers.reserve(m_nSwapChainBuffers);
 
 	for (INT i = 0; i < m_nSwapChainBuffers; ++i)
 	{
-		m_ppd3dRenderTargetBuffers.push_back(nullptr);
+		m_vpd3dSwapChainBackBuffers.push_back(nullptr);
 	}
 
 	m_pd3dRtvDescriptorHeap			 = nullptr;
@@ -71,7 +71,7 @@ void CGameFramework::OnDestroy()
 	ReleaseObjects();					// °ÔÀÓ °´Ã¼(°ÔÀÓ ¿ùµå °´Ã¼) ¼Ò¸ê
 	::CloseHandle(m_hFenceEvent);
 
-	for (auto buffer = m_ppd3dRenderTargetBuffers.cbegin(); buffer != m_ppd3dRenderTargetBuffers.cend(); ++buffer)
+	for (auto buffer = m_vpd3dSwapChainBackBuffers.cbegin(); buffer != m_vpd3dSwapChainBackBuffers.cend(); ++buffer)
 	{
 		if (*buffer)
 			(*buffer)->Release();
@@ -278,10 +278,10 @@ void CGameFramework::CreateRenderTargetViews()
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle{ m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart() };
 
-	for (UINT i = 0; i < m_nSwapChainBuffers; ++i)
+	for (auto iter = m_vpd3dSwapChainBackBuffers.begin(); iter != m_vpd3dSwapChainBackBuffers.end(); ++iter)
 	{
-		m_pdxgiSwapChain->GetBuffer(i, __uuidof(ID3D12Resource), reinterpret_cast<void**>(&m_ppd3dRenderTargetBuffers[i]));
-		m_pd3dDevice->CreateRenderTargetView(m_ppd3dRenderTargetBuffers[i], nullptr, d3dRtvCPUDescriptorHandle);
+		m_pdxgiSwapChain->GetBuffer(iter - m_vpd3dSwapChainBackBuffers.begin(), __uuidof(ID3D12Resource), reinterpret_cast<void**>(&(*iter)));
+		m_pd3dDevice->CreateRenderTargetView(*iter, nullptr, d3dRtvCPUDescriptorHandle);
 
 		d3dRtvCPUDescriptorHandle.ptr += m_nRtvDescriptorIncrementSize;
 	}
@@ -347,7 +347,7 @@ void CGameFramework::ChangeSwapChainState()
 
 	m_pdxgiSwapChain->ResizeTarget(&dxgiTargetParameters);
 
-	for (auto buffer = m_ppd3dRenderTargetBuffers.begin(); buffer != m_ppd3dRenderTargetBuffers.end(); ++buffer)
+	for (auto buffer = m_vpd3dSwapChainBackBuffers.begin(); buffer != m_vpd3dSwapChainBackBuffers.end(); ++buffer)
 	{
 		if (*buffer)
 			(*buffer)->Release();
@@ -509,7 +509,7 @@ void CGameFramework::FrameAdvance()
 
 	d3dResourceBarrier.Type							 = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	d3dResourceBarrier.Flags						 = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	d3dResourceBarrier.Transition.pResource			 = m_ppd3dRenderTargetBuffers[m_nSwapChainBufferIndex];
+	d3dResourceBarrier.Transition.pResource			 = m_vpd3dSwapChainBackBuffers[m_nSwapChainBufferIndex];
 	d3dResourceBarrier.Transition.StateBefore		 = D3D12_RESOURCE_STATE_PRESENT;
 	d3dResourceBarrier.Transition.StateAfter		 = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.Subresource		 = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;

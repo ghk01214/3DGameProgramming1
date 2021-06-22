@@ -57,7 +57,7 @@ private:
 	static const UINT					 m_nSwapChainBuffers{ 2 };											// Swap Chain 후면 버퍼 개수
 	UINT								 m_nSwapChainBufferIndex;											// 현재 Swap Chain의 후면 버퍼 인덱스
 private:
-	std::vector<ID3D12Resource*>		 m_ppd3dRenderTargetBuffers;										// Render Target 버퍼
+	std::vector<ID3D12Resource*>		 m_vpd3dSwapChainBackBuffers;										// Render Target 버퍼
 	ID3D12DescriptorHeap*				 m_pd3dRtvDescriptorHeap;											// 서술자 Heap Interface 포인터
 	UINT								 m_nRtvDescriptorIncrementSize;										// Render Target 서술자 원소 크기
 private:
