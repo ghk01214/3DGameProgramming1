@@ -31,6 +31,9 @@ CGameObject::~CGameObject()
 		m_vpMeshes.shrink_to_fit();
 	}
 
+	if (m_pMesh)
+		m_pMesh->Release();
+
 	if (m_pShader)
 	{
 		m_pShader->ReleaseShaderVariables();
@@ -56,6 +59,35 @@ void CGameObject::ReleaseUploadBuffers()
 	}
 }
 
+void CGameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+}
+
+void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	XMFLOAT4X4 xmf4x4World;
+
+	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
+
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World, 0);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 3, &m_xmf3Color, 16);
+}
+
+void CGameObject::ReleaseShaderVariables()
+{
+}
+
+void CGameObject::SetMesh(CMesh* pMesh)
+{
+	if (m_pMesh)
+		m_pMesh->Release();
+
+	m_pMesh = pMesh;
+
+	if (m_pMesh)
+		m_pMesh->AddReference();
+}
+
 void CGameObject::SetMesh(INT nIndex, CMesh* pMesh)
 {
 	if (!m_vpMeshes.empty())
@@ -79,24 +111,6 @@ void CGameObject::SetShader(CShader* pShader)
 
 	if (m_pShader)
 		m_pShader->AddReference();
-}
-
-void CGameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
-{
-}
-
-void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
-{
-	XMFLOAT4X4 xmf4x4World;
-
-	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
-
-	// 객체의 월드 변환 행렬을 Root 상수(32비트 값)를 통하여 Shader 변수(상수 버퍼)로 복사
-	pd3dCommandList->SetGraphicsRoot32BitConstants(0, 16, &xmf4x4World, 0);
-}
-
-void CGameObject::ReleaseShaderVariables()
-{
 }
 
 void CGameObject::SetPosition(FLOAT x, FLOAT y, FLOAT z)
@@ -184,15 +198,17 @@ void CGameObject::PrepareRender()
 
 void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
-	// 객체의 정보를 Shader 변수(상수 버퍼)로 복사
 	UpdateShaderVariables(pd3dCommandList);
 
 	if (m_pShader)
 		m_pShader->Render(pd3dCommandList, pCamera);
 
+	if (m_pMesh)
+		m_pMesh->Render(pd3dCommandList);
+
 	if (!m_vpMeshes.empty())
 	{
-		for (auto iter = m_vpMeshes.cbegin(); iter != m_vpMeshes.cend(); ++iter)
+		for (auto iter = m_vpMeshes.begin(); iter != m_vpMeshes.end(); ++iter)
 		{
 			if (*iter)
 				(*iter)->Render(pd3dCommandList);
@@ -275,4 +291,12 @@ CHeightMapTerrain::~CHeightMapTerrain()
 {
 	if (m_pHeightMapImage)
 		delete m_pHeightMapImage;
+}
+
+CUFOObject::CUFOObject()
+{
+}
+
+CUFOObject::~CUFOObject()
+{
 }

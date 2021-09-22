@@ -27,7 +27,7 @@ class CMesh
 {
 public:
 	CMesh() {}
-	CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CHAR* pstrFileName = nullptr, BOOL bTextFile = TRUE);
 	virtual ~CMesh();
 public:
 	void AddReference() { ++m_nReferences; }
@@ -36,6 +36,8 @@ public:
 public:
 	BoundingOrientedBox GetBoundingBox() { return m_xmBoundingBox; }
 public:
+	void LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CHAR* pstrFileName, BOOL bTextFile);
+public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList);
 
 private:
@@ -43,20 +45,35 @@ private:
 protected:
 	ID3D12Resource*				 m_pd3dVertexBuffer{ nullptr };
 	ID3D12Resource*				 m_pd3dVertexUploadBuffer{ nullptr };
-protected:
 	D3D12_VERTEX_BUFFER_VIEW	 m_d3dVertexBufferView;
-protected:
-	D3D12_PRIMITIVE_TOPOLOGY	 m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	UINT						 m_nSlot{ 0 };
-	UINT						 m_nVertices{ 0 };
-	UINT						 m_nStride{ 0 };
-	UINT						 m_nOffset{ 0 };
+	std::vector<D3D12_VERTEX_BUFFER_VIEW>	 m_vd3dVertexBufferViews;
+	UINT						 m_nVertexBufferViews{ 0 };
 protected:
 	ID3D12Resource*				 m_pd3dIndexBuffer{ nullptr };						// Index 버퍼 Interface 포인터(Vertex 버퍼(배열)에 대한 Index를 가짐)
 	ID3D12Resource*				 m_pd3dIndexUploadBuffer{ nullptr };				// Index 버퍼 업로드 버퍼 Interface 포인터
 	D3D12_INDEX_BUFFER_VIEW		 m_d3dIndexBufferView;
 protected:
-	UINT						 m_nIndices{ 0 };									// Index 버퍼에 포함되는 Index의 개수
+	UINT						 m_nVertices{ 0 };
+	UINT						 m_nIndices{ 0 };
+	std::vector<UINT>			 m_vnIndices;
+protected:
+	std::vector<XMFLOAT3>		 m_vxmf3Positions;
+	ID3D12Resource*				 m_pd3dPositionBuffer{ nullptr };
+	ID3D12Resource*				 m_pd3dPositionUploadBuffer{ nullptr };
+protected:
+	std::vector<XMFLOAT3>		 m_vxmf3Normals;
+	ID3D12Resource*				 m_pd3dNormalBuffer{ nullptr };
+	ID3D12Resource*				 m_pd3dNormalUploadBuffer{ nullptr };
+protected:
+	std::vector<XMFLOAT2>		 m_vxmf2TextureCoords;
+	ID3D12Resource*				 m_pd3dTextureCoordBuffer{ nullptr };
+	ID3D12Resource*				 m_pd3dTextureCoordUploadBuffer{ nullptr };
+protected:
+	D3D12_PRIMITIVE_TOPOLOGY	 m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	UINT						 m_nSlot{ 0 };
+	UINT						 m_nStride{ 0 };
+	UINT						 m_nOffset{ 0 };
+protected:
 	UINT						 m_nStartIndex{ 0 };								// Index 버퍼에서 Mesh를 그리기 위해 사용되는 시작 Index
 	INT							 m_nBaseVertex{ 0 };								// Index 버퍼의 Index에 더해질 Index
 public:

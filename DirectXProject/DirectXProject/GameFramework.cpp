@@ -250,6 +250,8 @@ void CGameFramework::CreateDirect3DDevice()
 	
 	if (pd3dAdapter)
 		pd3dAdapter->Release();
+
+	::gnCbvSrvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
 void CGameFramework::CreateCommandQueueAndList()
@@ -322,8 +324,15 @@ void CGameFramework::CreateDepthStencilView()
 	m_pd3dDevice->CreateCommittedResource(&d3dHeapProperties, D3D12_HEAP_FLAG_NONE,	&d3dResourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &d3dClearValue,	__uuidof(ID3D12Resource), reinterpret_cast<void**>(&m_pd3dDepthStencilBuffer));
 	
 	// Depth-Stencil ¹öÆÛ ºä »ý¼º
-	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle{ m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart() };
-	m_pd3dDevice->CreateDepthStencilView(m_pd3dDepthStencilBuffer, nullptr,	d3dDsvCPUDescriptorHandle);
+	D3D12_CPU_DESCRIPTOR_HANDLE		 d3dDsvCPUDescriptorHandle{ m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart() };
+	D3D12_DEPTH_STENCIL_VIEW_DESC	 d3dDepthStencilViewDesc;
+	::ZeroMemory(&d3dDepthStencilViewDesc, sizeof(D3D12_DEPTH_STENCIL_VIEW_DESC));
+
+	d3dDepthStencilViewDesc.Format			 = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	d3dDepthStencilViewDesc.ViewDimension	 = D3D12_DSV_DIMENSION_TEXTURE2D;
+	d3dDepthStencilViewDesc.Flags			 = D3D12_DSV_FLAG_NONE;
+
+	m_pd3dDevice->CreateDepthStencilView(m_pd3dDepthStencilBuffer, &d3dDepthStencilViewDesc, d3dDsvCPUDescriptorHandle);
 }
 
 void CGameFramework::ChangeSwapChainState()
@@ -403,13 +412,20 @@ void CGameFramework::BuildObjects()
 	if (m_pScene)
 		m_pScene->ReleaseUploadBuffers();
 
+	if (m_pPlayer)
+		m_pPlayer->ReleaseUploadBuffers();
+
 	m_GameTimer.Reset();
 }
 
 void CGameFramework::ReleaseObjects()
 {
 	if (m_pScene)
+	{
 		m_pScene->ReleaseObjects();
+		
+		delete m_pScene;
+	}
 
 	if (m_pPlayer)
 		m_pPlayer->Release();

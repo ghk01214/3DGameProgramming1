@@ -12,19 +12,25 @@ CScene::~CScene()
 ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
 {
 	ID3D12RootSignature*	 pd3dGraphicsRootSignature{ nullptr };
-	D3D12_ROOT_PARAMETER	 pd3dRootParameters[2];
+	D3D12_ROOT_PARAMETER	 pd3dRootParameters[3];
 
 	pd3dRootParameters[0].ParameterType					 = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	pd3dRootParameters[0].Constants.Num32BitValues		 = 16;
+	pd3dRootParameters[0].Constants.Num32BitValues		 = 4;
 	pd3dRootParameters[0].Constants.ShaderRegister		 = 0;
 	pd3dRootParameters[0].Constants.RegisterSpace		 = 0;
 	pd3dRootParameters[0].ShaderVisibility				 = D3D12_SHADER_VISIBILITY_VERTEX;
 
 	pd3dRootParameters[1].ParameterType					 = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	pd3dRootParameters[1].Constants.Num32BitValues		 = 32;
+	pd3dRootParameters[1].Constants.Num32BitValues		 = 19;
 	pd3dRootParameters[1].Constants.ShaderRegister		 = 1;
 	pd3dRootParameters[1].Constants.RegisterSpace		 = 0;
 	pd3dRootParameters[1].ShaderVisibility				 = D3D12_SHADER_VISIBILITY_VERTEX;
+
+	pd3dRootParameters[2].ParameterType					 = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	pd3dRootParameters[2].Constants.Num32BitValues		 = 35;
+	pd3dRootParameters[2].Constants.ShaderRegister		 = 2;
+	pd3dRootParameters[2].Constants.RegisterSpace		 = 0;
+	pd3dRootParameters[2].ShaderVisibility				 = D3D12_SHADER_VISIBILITY_ALL;
 
 	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags{
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
@@ -45,7 +51,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	ID3DBlob* pd3dErrorBlob{ nullptr };
 
 	::D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &pd3dSignatureBlob, &pd3dErrorBlob);
-	pd3dDevice->CreateRootSignature(0, pd3dSignatureBlob->GetBufferPointer(), pd3dSignatureBlob->GetBufferSize(), __uuidof(ID3D12RootSignature), (void**)&pd3dGraphicsRootSignature);
+	pd3dDevice->CreateRootSignature(0, pd3dSignatureBlob->GetBufferPointer(), pd3dSignatureBlob->GetBufferSize(), __uuidof(ID3D12RootSignature), reinterpret_cast<void**>(&pd3dGraphicsRootSignature));
 	
 	if (pd3dSignatureBlob)
 		pd3dSignatureBlob->Release();
@@ -124,7 +130,7 @@ void CScene::CreateGraphicsPipelineState(ID3D12Device* pd3dDevice)
 	d3dPipelineStateDesc.SampleDesc.Count					 = 1;
 	d3dPipelineStateDesc.SampleDesc.Quality					 = 0;
 
-	pd3dDevice->CreateGraphicsPipelineState(&d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void**)&m_pd3dPipelineState);
+	pd3dDevice->CreateGraphicsPipelineState(&d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), reinterpret_cast<void**>(&m_pd3dPipelineState));
 
 	if (pd3dVertexShaderBlob)
 		pd3dVertexShaderBlob->Release();
@@ -154,13 +160,18 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	CObjectsShader* pShaders;
 
-	m_nShaders = 1;
+	m_nShaders = 2;
 	m_vShaders.reserve(m_nShaders);
 
 	pShaders = new CObjectsShader();
 	pShaders->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
 	pShaders->BuildObjects(pd3dDevice, pd3dCommandList, m_pTerrain);
 	m_vShaders.push_back(pShaders);
+
+	//pShaders = new CPseudoLightingShader();
+	//pShaders->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
+	//pShaders->BuildObjects(pd3dDevice, pd3dCommandList, nullptr);
+	//m_vShaders.push_back(pShaders);
 }
 
 void CScene::RebuildObject()

@@ -5,6 +5,11 @@
 class CGameObject;
 class CWallObject;
 
+struct CB_GAMEOBHECT_INFO
+{
+	XMFLOAT4X4 m_xmf4x4World;
+};
+
 class CShader
 {
 public:
@@ -37,7 +42,7 @@ public:
 private:
 	INT									 m_nReferences{ 0 };
 protected:
-	ID3D12PipelineState**				 m_ppd3dPipelineStates{ nullptr };
+	ID3D12PipelineState*				 m_pd3dPipelineStates{ nullptr };
 	INT									 m_nPipelineStates{ 0 };
 };
 
@@ -83,6 +88,20 @@ public:
 protected:
 	std::vector<CGameObject*>	 m_vpObjects;
 	INT							 m_nObjects{ 0 };
+};
+
+class CPseudoLightingShader : public CObjectsShader
+{
+public:
+	CPseudoLightingShader();
+	virtual ~CPseudoLightingShader();
+public:
+	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext = nullptr);
+	virtual void ReleaseObjects();
+public:
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
 };
 
 class CTerrainShader : public CShader

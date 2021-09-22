@@ -16,16 +16,16 @@ public:
 public:
 	void ReleaseUploadBuffers();
 public:
-	virtual void SetMesh(INT nIndex, CMesh* pMesh);
-	virtual void SetShader(CShader* pShader);
-public:
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);		// 상수 버퍼 생성
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);									// 상수 버퍼의 내용 갱신
 	virtual void ReleaseShaderVariables();
 public:
-	// Game Object의 위치 설정
+	virtual void SetMesh(CMesh* pMesh);
+	virtual void SetMesh(INT nIndex, CMesh* pMesh);
+	virtual void SetShader(CShader* pShader);
 	void SetPosition(FLOAT x, FLOAT y, FLOAT z);
 	void SetPosition(XMFLOAT3 xmf3Position);
+	void SetColor(XMFLOAT3 xmf3Color) { m_xmf3Color = xmf3Color; }
 	void SetCollidedObject(CGameObject* pObjectCollided);
 	void SetBoundingBox(BoundingOrientedBox xmBoundingBox) { m_xmBoundingBox = xmBoundingBox; }
 public:
@@ -57,8 +57,10 @@ private:
 	INT						m_nReferences{ 0 };
 protected:
 	XMFLOAT4X4				m_xmf4x4World;
+	XMFLOAT3				m_xmf3Color{ XMFLOAT3(1.0f, 1.0f, 1.0f) };
 protected:
 	std::vector<CMesh*>		m_vpMeshes{ nullptr };
+	CMesh*					m_pMesh{ nullptr };
 	INT						m_nMeshes{ 0 };
 	CShader*				m_pShader{ nullptr };
 protected:
@@ -81,6 +83,13 @@ public:
 private:
 	XMFLOAT3			 m_xmf3RotationAxis;
 	FLOAT				 m_fRotationSpeed;
+};
+
+class CUFOObject : public CGameObject
+{
+public:
+	CUFOObject();
+	virtual ~CUFOObject();
 };
 
 class CHeightMapTerrain : public CGameObject

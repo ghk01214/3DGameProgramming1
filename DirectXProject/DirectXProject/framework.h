@@ -22,7 +22,7 @@
 #include <memory.h>
 #include <tchar.h>
 
-#include <list>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <iterator>
@@ -50,6 +50,7 @@
 #define EPSILON				1.0e-10f
 
 #define _WITH_SWAPCHAIN_FULLSCREEN_STATE
+#define _WITH_DIRECTX_MATH_FRUSTUM
 
 //Vertex의 색상을 무작위로(Random) 설정하기 위해 사용. 각 Vertex의 색상은 난수(Random Number)를 생성 후 지정
 #define RANDOM_COLOR XMFLOAT4(rand() / (FLOAT)RAND_MAX, rand() / (FLOAT)RAND_MAX, rand() / (FLOAT)RAND_MAX, rand() / (FLOAT)RAND_MAX)
@@ -60,6 +61,8 @@ using Microsoft::WRL::ComPtr;
 
 extern std::random_device rd;
 extern std::default_random_engine dre;
+
+extern UINT gnCbvSrvDescriptorIncrementSize;
 
 extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
 	void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD,
